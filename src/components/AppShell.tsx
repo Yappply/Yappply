@@ -179,8 +179,9 @@ export function AppShell({
       ]
 
   function isActive(href: string) {
+    const path = pathname ?? ''
     if (href === '/') return false
-    return pathname === href || pathname.startsWith(`${href}/`)
+    return path === href || path.startsWith(`${href}/`)
   }
 
   return (

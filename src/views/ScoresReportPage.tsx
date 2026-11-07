@@ -13,7 +13,7 @@ import { fetchLessonReport, type LessonReportResponse } from '../lib/progress'
 
 export function ScoresReportPage() {
   const params = useParams<{ lessonId: string }>()
-  const lessonId = params.lessonId
+  const lessonId = params?.lessonId ?? ''
   const router = useRouter()
   const [meta, setMeta] = useState<LessonReportResponse | null>(null)
   const [report, setReport] = useState<DetailedLessonReport | null>(null)

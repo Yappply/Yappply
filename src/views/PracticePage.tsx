@@ -17,7 +17,7 @@ import type { StoredLessonResultPayload } from '../lib/detailedReport'
 
 export function PracticePage() {
   const params = useParams<{ lessonId: string }>()
-  const lessonId = params.lessonId
+  const lessonId = params?.lessonId ?? ''
   const { user } = useAuth()
   const router = useRouter()
   const topic = TOPICS.find((t) => t.id === lessonId)

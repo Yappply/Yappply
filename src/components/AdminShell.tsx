@@ -27,8 +27,9 @@ export function AdminShell({
   const pathname = usePathname()
 
   function isActive(href: string, exact: boolean) {
-    if (exact) return pathname === href
-    return pathname === href || pathname.startsWith(`${href}/`)
+    const path = pathname ?? ''
+    if (exact) return path === href
+    return path === href || path.startsWith(`${href}/`)
   }
 
   return (

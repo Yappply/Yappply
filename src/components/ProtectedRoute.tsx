@@ -23,7 +23,7 @@ export function ProtectedRoute({
   useEffect(() => {
     if (loading) return
     if (!user) {
-      router.replace(`/login?from=${encodeURIComponent(pathname)}`)
+      router.replace(`/login?from=${encodeURIComponent(pathname ?? '/')}`)
       return
     }
     if (access === 'learner' && user.role === 'admin') {

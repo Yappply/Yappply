@@ -15,7 +15,7 @@ import { evaluatePracticeSession } from '../lib/progress'
 
 export function ResultsPage() {
   const params = useParams<{ lessonId: string }>()
-  const lessonId = params.lessonId
+  const lessonId = params?.lessonId ?? ''
   const router = useRouter()
   const topic = TOPICS.find((t) => t.id === lessonId)
   const [payload, setPayload] = useState<StoredLessonResultPayload | null>(null)
