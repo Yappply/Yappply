@@ -1,0 +1,2630 @@
+.yappply {
+  --white: #ffffff;
+  --ink: #16151f;
+  --ink-2: #55536a;
+  --lilac: #c9b8ff;
+  --lilac-soft: #eee8ff;
+  --lime: #ddf55b;
+  --lime-soft: #f4fbcf;
+  --pink: #ff8cc6;
+  --pink-soft: #ffe3f1;
+  --line: 2px solid var(--ink);
+  --sans: var(--font-bricolage), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: var(--font-instrument), Georgia, serif;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--white);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.yappply *,
+.yappply *::before,
+.yappply *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.yappply svg {
+  display: block;
+}
+
+.yappply a {
+  color: inherit;
+}
+
+.yappply :focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+.yappply .wrap {
+  width: min(1200px, calc(100% - clamp(1.5rem, 5vw, 2.5rem)));
+  margin-inline: auto;
+  max-width: 100%;
+}
+
+.yappply .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.yappply h1,
+.yappply h2,
+.yappply h3 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  overflow-wrap: break-word;
+}
+
+.yappply h2 {
+  font-size: clamp(1.85rem, 5.4vw, 4.2rem);
+}
+
+.yappply h3 {
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.yappply em.s {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.yappply p {
+  max-width: 60ch;
+}
+
+.yappply .muted {
+  color: var(--ink-2);
+}
+
+.yappply .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font: 700 1.02rem / 1 var(--sans);
+  padding: 1.05rem 1.6rem;
+  border-radius: 999px;
+  text-decoration: none;
+  border: var(--line);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+  background: #fff;
+  color: var(--ink);
+}
+
+.yappply .btn-lime {
+  background: var(--lime);
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+.yappply .btn-lime:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+.yappply .btn-lime:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.yappply .btn-ink {
+  background: var(--ink);
+  color: #fff;
+}
+
+.yappply .btn-ink:hover {
+  background: #2c2a3d;
+}
+
+.yappply .btn-white {
+  background: #fff;
+}
+
+.yappply .btn-white:hover {
+  background: var(--lilac-soft);
+}
+
+.yappply .btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.yappply .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  background: #fff;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.yappply .pill.dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pink);
+  flex-shrink: 0;
+}
+
+.yappply .nav {
+  padding: 1.1rem 0;
+  position: relative;
+  z-index: 5;
+}
+
+.yappply .nav-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  background: #fff;
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.55rem 0.6rem 0.55rem 1.2rem;
+  min-width: 0;
+}
+
+.yappply .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.yappply .logo-mark {
+  width: 38px;
+  height: 38px;
+}
+
+.yappply .nav-links {
+  display: flex;
+  gap: 0.3rem;
+  list-style: none;
+}
+
+.yappply .nav-links a {
+  display: block;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.yappply .nav-links a:hover {
+  background: var(--lilac-soft);
+}
+
+.yappply .nav .btn {
+  padding: 0.75rem 1.2rem;
+  font-size: 0.95rem;
+}
+
+.yappply .landing-auth-slot {
+  display: flex;
+  align-items: center;
+  flex: none;
+  min-width: 42px;
+  min-height: 42px;
+}
+
+.yappply .landing-profile-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: var(--line);
+  background: var(--lime);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.yappply .landing-profile-circle:hover {
+  background: var(--lilac);
+}
+
+.yappply .hero {
+  padding: 2.5rem 0 3rem;
+  position: relative;
+  overflow-x: clip;
+}
+
+.yappply .hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.yappply .hero-grid > * {
+  min-width: 0;
+}
+
+.yappply .hero-eyebrow-short {
+  display: none;
+}
+
+.yappply .hero h1 {
+  font-size: clamp(2.2rem, 6.4vw, 5.7rem);
+  margin: 1.2rem 0 1.4rem;
+  max-width: 100%;
+  text-wrap: balance;
+}
+
+.yappply .hero h1 .hl {
+  position: relative;
+  display: inline;
+  white-space: nowrap;
+}
+
+.yappply .hero h1 .hl svg {
+  position: absolute;
+  left: -2%;
+  bottom: -0.12em;
+  width: 104%;
+  height: 0.32em;
+  pointer-events: none;
+}
+
+.yappply .hero-sub {
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  color: var(--ink-2);
+  margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+.yappply .hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  align-items: center;
+  margin-bottom: 1.6rem;
+}
+
+.yappply .hero-ctas .btn {
+  max-width: 100%;
+}
+
+.yappply .price-hint {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+
+.yappply .facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.yappply .stage {
+  position: relative;
+  min-height: 600px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: visible;
+}
+
+.yappply .stage-bg {
+  position: absolute;
+  inset: 4% 2% 0 6%;
+  background: var(--lilac);
+  border: var(--line);
+  border-radius: 44px;
+}
+
+.yappply .mascot {
+  position: absolute;
+  left: 4%;
+  bottom: 2%;
+  width: 58%;
+  z-index: 2;
+}
+
+.yappply .mascot svg {
+  width: 100%;
+  height: auto;
+}
+
+.yappply .bubble {
+  position: absolute;
+  z-index: 3;
+  background: #fff;
+  border: var(--line);
+  border-radius: 22px;
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  max-width: 270px;
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.yappply .bubble.show {
+  opacity: 1;
+  transform: none;
+}
+
+.yappply .bubble small {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin-bottom: 0.2rem;
+}
+
+.yappply .b1 {
+  top: 9%;
+  left: 12%;
+  border-bottom-left-radius: 6px;
+}
+
+.yappply .b2 {
+  top: 26%;
+  right: 2%;
+  background: var(--ink);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.yappply .b2 small {
+  color: #bdb9d6;
+}
+
+.yappply .b3 {
+  top: 45%;
+  right: 6%;
+  background: var(--lime);
+  border-bottom-right-radius: 6px;
+}
+
+.yappply .b3 s {
+  opacity: 0.55;
+}
+
+.yappply .sticker {
+  position: absolute;
+  right: 0;
+  bottom: 6%;
+  width: 150px;
+  z-index: 4;
+  animation: yp-spin 18s linear infinite;
+}
+
+.yappply .tagpill {
+  position: absolute;
+  z-index: 3;
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.yappply .t1 {
+  left: 2%;
+  top: 58%;
+  background: var(--pink);
+  transform: rotate(-8deg);
+}
+
+.yappply .t2 {
+  left: 30%;
+  top: 2%;
+  background: var(--lime);
+  transform: rotate(5deg);
+}
+
+.yappply .star {
+  position: absolute;
+  z-index: 3;
+}
+
+.yappply .marquee {
+  border-block: var(--line);
+  background: var(--ink);
+  color: #fff;
+  overflow: hidden;
+}
+
+.yappply .marquee-track {
+  display: flex;
+  width: max-content;
+  animation: yp-marquee 30s linear infinite;
+}
+
+.yappply .marquee span {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.95rem 1.5rem 0.95rem 0;
+  font-weight: 700;
+  font-size: 1.25rem;
+  white-space: nowrap;
+}
+
+.yappply .marquee em {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.45rem;
+}
+
+.yappply .marquee svg {
+  width: 20px;
+  height: 20px;
+}
+
+.yappply .section {
+  padding: 6.5rem 0;
+}
+
+.yappply .head {
+  max-width: 780px;
+  margin-bottom: 3.25rem;
+}
+
+.yappply .head.center {
+  text-align: center;
+  margin-inline: auto;
+}
+
+.yappply .head .pill {
+  margin-bottom: 1.2rem;
+}
+
+.yappply .head p {
+  margin-top: 1.1rem;
+  font-size: 1.18rem;
+  color: var(--ink-2);
+}
+
+.yappply .head.center p {
+  margin-inline: auto;
+}
+
+.yappply .feels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.yappply .feel {
+  border: var(--line);
+  border-radius: 28px;
+  padding: 1.5rem 1.4rem 1.6rem;
+  position: relative;
+}
+
+.yappply .feel:nth-child(1) {
+  background: var(--lilac-soft);
+}
+
+.yappply .feel:nth-child(2) {
+  background: var(--lime-soft);
+}
+
+.yappply .feel:nth-child(3) {
+  background: var(--pink-soft);
+}
+
+.yappply .feel:nth-child(4) {
+  background: #fff;
+}
+
+.yappply .feel .face {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+}
+
+.yappply .feel q {
+  display: block;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.55rem;
+  quotes: '\201C' '\201D';
+}
+
+.yappply .feel p {
+  font-size: 0.96rem;
+  color: var(--ink-2);
+}
+
+.yappply .punch {
+  margin-top: 3.5rem;
+  text-align: center;
+  font-size: clamp(1.7rem, 3.5vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.yappply .how {
+  background: var(--lilac-soft);
+  border-block: var(--line);
+}
+
+.yappply .steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  list-style: none;
+  position: relative;
+}
+
+.yappply .step {
+  background: #fff;
+  border: var(--line);
+  border-radius: 28px;
+  padding: 1.5rem 1.35rem 1.6rem;
+  position: relative;
+}
+
+.yappply .step .no {
+  position: absolute;
+  top: -18px;
+  left: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.yappply .step .ill {
+  height: 110px;
+  display: grid;
+  place-items: center;
+  margin: 0.5rem 0 1rem;
+  border-radius: 20px;
+}
+
+.yappply .step .ill svg {
+  height: 90px;
+  width: auto;
+}
+
+.yappply .step h3 {
+  margin-bottom: 0.45rem;
+}
+
+.yappply .step p {
+  font-size: 0.97rem;
+  color: var(--ink-2);
+}
+
+.yappply .rule {
+  margin-top: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.yappply .rule .pill {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--lime);
+}
+
+.yappply .report-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.yappply .ticks {
+  list-style: none;
+  display: grid;
+  gap: 0.9rem;
+  margin: 2rem 0 2.2rem;
+}
+
+.yappply .ticks li {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.yappply .ticks li::before {
+  content: '';
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 0.05rem;
+  border-radius: 50%;
+  border: var(--line);
+  background: var(--lime)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%2316151F' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+
+.yappply .ticks span {
+  font-weight: 400;
+  color: var(--ink-2);
+  display: block;
+  font-size: 0.97rem;
+}
+
+.yappply .report {
+  position: relative;
+  background: #fff;
+  border: var(--line);
+  border-radius: 32px;
+  padding: 1.6rem;
+  box-shadow: 12px 12px 0 var(--lilac);
+}
+
+.yappply .rep-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+}
+
+.yappply .rep-top small {
+  display: block;
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.yappply .rep-top b {
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.yappply .level {
+  text-align: center;
+  border: var(--line);
+  border-radius: 18px;
+  padding: 0.5rem 0.8rem;
+  background: var(--lime);
+}
+
+.yappply .level small {
+  font-size: 0.72rem;
+  color: var(--ink);
+}
+
+.yappply .level b {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.yappply .scores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.3rem;
+}
+
+.yappply .score {
+  border: 1.5px solid var(--ink);
+  border-radius: 18px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+
+.yappply .score svg {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 0.35rem;
+}
+
+.yappply .score span {
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.yappply .mist-h {
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.yappply .mist-h span {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+}
+
+.yappply .mist {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.yappply .mist div {
+  border-radius: 16px;
+  padding: 0.7rem 0.9rem;
+  background: var(--lilac-soft);
+  font-size: 0.93rem;
+  line-height: 1.4;
+}
+
+.yappply .mist s {
+  color: #b4235f;
+  text-decoration-thickness: 2px;
+}
+
+.yappply .mist b {
+  color: #1f7a3d;
+}
+
+.yappply .mist small {
+  display: block;
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+}
+
+.yappply .report .star {
+  right: -22px;
+  top: -26px;
+}
+
+.yappply .dash-wrap {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 44px;
+  padding: 4.5rem clamp(1.25rem, 4vw, 4rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.yappply .dash-wrap .head p {
+  color: #c7c4db;
+}
+
+.yappply .dash-wrap .pill {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--ink);
+}
+
+.yappply .dash {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.yappply .tile {
+  background: #24222f;
+  border: 1.5px solid #3a3850;
+  border-radius: 24px;
+  padding: 1.3rem;
+}
+
+.yappply .tile small {
+  color: #aba8c3;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.yappply .tile .big {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-top: 0.3rem;
+}
+
+.yappply .tile .big em {
+  font-size: 1.1rem;
+  font-family: var(--sans);
+  font-style: normal;
+  font-weight: 600;
+  color: inherit;
+  opacity: 0.7;
+  letter-spacing: 0;
+}
+
+.yappply .tile.wide {
+  grid-column: span 2;
+}
+
+.yappply .tile.lime {
+  background: var(--lime);
+  color: var(--ink);
+  border-color: var(--lime);
+}
+
+.yappply .tile.lime small {
+  color: #4d5a12;
+}
+
+.yappply .tile.lilac {
+  background: var(--lilac);
+  color: var(--ink);
+  border-color: var(--lilac);
+}
+
+.yappply .tile.lilac small {
+  color: #4b3d8a;
+}
+
+.yappply .bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 110px;
+  margin-top: 1rem;
+}
+
+.yappply .bars i {
+  flex: 1;
+  background: var(--lilac);
+  border-radius: 6px 6px 2px 2px;
+}
+
+.yappply .bars i.on {
+  background: var(--lime);
+}
+
+.yappply .grid30 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  margin-top: 1rem;
+}
+
+.yappply .grid30 i {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  background: rgba(22, 21, 31, 0.15);
+}
+
+.yappply .grid30 i.d {
+  background: var(--ink);
+}
+
+.yappply .grid30 i.t {
+  background: #fff;
+  border: 2px solid var(--ink);
+}
+
+.yappply .dash-note {
+  margin-top: 1.5rem;
+  color: #aba8c3;
+  font-size: 0.9rem;
+}
+
+.yappply .cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.yappply .cloud span {
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.6rem 1.15rem;
+  font-weight: 700;
+  font-size: 1.02rem;
+  background: #fff;
+}
+
+.yappply .cloud span:nth-child(5n + 1) {
+  background: var(--lilac);
+}
+
+.yappply .cloud span:nth-child(5n + 3) {
+  background: var(--lime);
+}
+
+.yappply .cloud span:nth-child(7n + 4) {
+  background: var(--pink-soft);
+}
+
+.yappply .cloud span:nth-child(4n + 2) {
+  transform: rotate(-3deg);
+}
+
+.yappply .cloud span:nth-child(6n + 5) {
+  transform: rotate(3deg);
+}
+
+.yappply .cloud .more {
+  background: var(--ink) !important;
+  color: #fff;
+  border-style: dashed;
+}
+
+.yappply .compare {
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 0;
+  border: var(--line);
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.yappply .compare-head,
+.yappply .compare-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+}
+
+.yappply .compare-head > *,
+.yappply .compare-row > * {
+  padding: 1.05rem 1.1rem;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+  border-bottom: 1.5px solid #e7e4f2;
+}
+
+.yappply .compare-row:last-child > * {
+  border-bottom: 0;
+}
+
+.yappply .compare-head > * {
+  background: var(--lilac-soft);
+  font-weight: 700;
+  border-bottom: var(--line);
+}
+
+.yappply .compare-feature {
+  font-weight: 800;
+}
+
+.yappply .compare .us {
+  background: var(--lime-soft);
+  font-weight: 700;
+}
+
+.yappply .compare-head .us {
+  background: var(--lime);
+  font-size: 1.05rem;
+}
+
+.yappply .yes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.yappply .yes::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex: none;
+  border: 1.5px solid var(--ink);
+  background: var(--lime)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%2316151F' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 13px no-repeat;
+}
+
+.yappply .pricing {
+  background: var(--lime-soft);
+  border-block: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.yappply .plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.yappply .plan {
+  background: #fff;
+  border: var(--line);
+  border-radius: 32px;
+  padding: 2rem 1.7rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.yappply .plan.best {
+  background: var(--lilac);
+  box-shadow: 10px 10px 0 var(--ink);
+  transform: translateY(-10px);
+}
+
+.yappply .plan .flag {
+  position: absolute;
+  top: -17px;
+  right: 22px;
+  background: var(--pink);
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  transform: rotate(4deg);
+}
+
+.yappply .plan h3 {
+  font-size: 1.5rem;
+}
+
+.yappply .plan .save {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: var(--lime);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  width: max-content;
+}
+
+.yappply .plan .save.none {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  color: var(--ink-2);
+}
+
+.yappply .amount {
+  margin: 1.4rem 0 0.2rem;
+  font-size: 2.9rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.yappply .per {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+
+.yappply .plan ul {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.yappply .plan li {
+  display: flex;
+  gap: 0.55rem;
+  font-weight: 600;
+  font-size: 0.97rem;
+}
+
+.yappply .plan li::before {
+  content: '';
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 0.12rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: #fff
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%2316151F' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 13px no-repeat;
+}
+
+.yappply .plan .btn {
+  margin-top: auto;
+  justify-content: center;
+}
+
+.yappply .all-plans {
+  text-align: center;
+  margin: 2.5rem auto 0;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.yappply .faq {
+  max-width: 840px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.yappply .faq details {
+  border: var(--line);
+  border-radius: 24px;
+  background: #fff;
+}
+
+.yappply .faq details[open] {
+  background: var(--lilac-soft);
+}
+
+.yappply .faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.15rem 1.4rem;
+  font-weight: 700;
+  font-size: 1.07rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.yappply .faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.yappply .faq summary::after {
+  content: '';
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--lime)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6v12M6 12h12' stroke='%2316151F' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E")
+    center / 15px no-repeat;
+  transition: transform 0.25s ease;
+}
+
+.yappply .faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.yappply .faq details p {
+  padding: 0 1.4rem 1.3rem;
+  color: var(--ink-2);
+}
+
+.yappply .final {
+  padding: 2rem 0 5rem;
+}
+
+.yappply .final-card {
+  position: relative;
+  background: var(--lilac);
+  border: var(--line);
+  border-radius: 44px;
+  padding: 4.5rem 2rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.yappply .final-card h2 {
+  max-width: 14ch;
+  margin: 0 auto 1.2rem;
+}
+
+.yappply .final-card p {
+  margin: 0 auto 2.2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.yappply .final-card .mascot-mini {
+  position: absolute;
+  width: 190px;
+  left: 5%;
+  bottom: -20px;
+}
+
+.yappply .final-card .mascot-mini svg {
+  width: 100%;
+  height: auto;
+}
+
+.yappply .final-card .sticker {
+  right: 6%;
+  top: 12%;
+  bottom: auto;
+  width: 130px;
+}
+
+.yappply footer {
+  background: var(--ink);
+  color: #c7c4db;
+  padding: 3.5rem 0 2rem;
+  overflow: hidden;
+}
+
+.yappply .foot-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.yappply .foot-top nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-weight: 600;
+}
+
+.yappply .foot-top a {
+  text-decoration: none;
+}
+
+.yappply .foot-top a:hover {
+  color: #fff;
+}
+
+.yappply .wordmark {
+  font-size: clamp(5rem, 20vw, 17rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.yappply .wordmark em {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--lime);
+  letter-spacing: -0.03em;
+}
+
+.yappply .foot-base {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.88rem;
+}
+
+.yappply .bobbing {
+  animation: yp-bob 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.yappply .posts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+.yappply .post {
+  border: var(--line);
+  border-radius: 28px;
+  overflow: hidden;
+  background: #fff;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.yappply .post:hover {
+  transform: translateY(-4px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.yappply .post .cover {
+  border-bottom: var(--line);
+  aspect-ratio: 16 / 10;
+}
+
+.yappply .post .cover svg {
+  width: 100%;
+  height: 100%;
+}
+
+.yappply .post .meta {
+  padding: 1.1rem 1.2rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.yappply .post .meta .pill {
+  width: max-content;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.65rem;
+}
+
+.yappply .post h3 {
+  font-size: 1.2rem;
+}
+
+.yappply .post .rt {
+  margin-top: auto;
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.yappply .blog-teaser-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.75rem;
+}
+
+.yappply .blog-hero {
+  padding-bottom: 2.5rem;
+}
+
+.yappply .blog-hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.yappply .blog-hero h1 {
+  font-size: clamp(3rem, 6vw, 4.8rem);
+  margin: 0.85rem 0 1rem;
+}
+
+.yappply .blog-hero-mascot {
+  justify-self: end;
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+}
+
+.yappply .blog-hero-mascot svg {
+  width: min(220px, 55vw);
+  height: auto;
+}
+
+.yappply .blog-featured {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 0;
+  border: var(--line);
+  border-radius: 32px;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 2rem;
+}
+
+.yappply .blog-featured-cover {
+  border-right: var(--line);
+  min-height: 240px;
+  background: var(--lilac-soft);
+}
+
+.yappply .blog-featured-cover svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.yappply .blog-featured-copy {
+  padding: 1.6rem 1.5rem 1.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.yappply .blog-featured-copy h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+}
+
+.yappply .blog-featured-copy .rt {
+  margin-top: auto;
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.yappply .blog-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.4rem;
+}
+
+.yappply .blog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.yappply .blog-filters .filter {
+  cursor: pointer;
+  background: #fff;
+  font: 700 0.85rem / 1 var(--sans);
+}
+
+.yappply .blog-filters .filter.on {
+  background: var(--lime);
+}
+
+.yappply .blog-search input {
+  font: 600 0.95rem / 1.2 var(--sans);
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.75rem 1.1rem;
+  min-width: min(260px, 100%);
+  background: #fff;
+  color: var(--ink);
+}
+
+.yappply .blog-empty {
+  color: var(--ink-2);
+  font-weight: 600;
+  margin: 1rem 0 2rem;
+}
+
+.yappply .blog-cta {
+  padding-top: 2rem;
+}
+
+.yappply .blog-cta-card {
+  border: var(--line);
+  border-radius: 40px;
+  background: var(--lilac);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+}
+
+.yappply .blog-cta-card p {
+  color: var(--ink);
+}
+
+.yappply .posts > article {
+  display: contents;
+}
+
+.yappply .nav-links a[aria-current='page'] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@keyframes yp-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes yp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes yp-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-2deg);
+  }
+}
+
+@keyframes yp-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 143, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 77, 143, 0);
+  }
+}
+
+@keyframes yp-eq {
+  0%,
+  100% {
+    height: 20%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@keyframes yp-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yappply *,
+  .yappply *::before,
+  .yappply *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .yappply .bubble {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 1020px) {
+  .yappply .nav-links {
+    display: none;
+  }
+
+  .yappply .hero-grid,
+  .yappply .report-grid,
+  .yappply .blog-hero-grid,
+  .yappply .blog-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .yappply .blog-featured-cover {
+    border-right: 0;
+    border-bottom: var(--line);
+    aspect-ratio: 16 / 10;
+  }
+
+  .yappply .stage {
+    max-width: 560px;
+    width: 100%;
+    margin: 0.5rem auto 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 1.05rem 0.95rem 1.15rem;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .yappply .stage-bg {
+    inset: 0;
+    border-radius: 28px;
+  }
+
+  .yappply .stage .bubble,
+  .yappply .stage .tagpill,
+  .yappply .stage .mascot {
+    position: relative;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    max-width: 100%;
+    width: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    box-sizing: border-box;
+  }
+
+  .yappply .stage .bubble {
+    max-width: 92%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .yappply .stage .t2 {
+    align-self: center;
+    order: 1;
+    transform: none !important;
+    font-size: 0.88rem;
+    padding: 0.4rem 0.85rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .yappply .stage .b1 {
+    align-self: flex-start;
+    order: 2;
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
+  }
+
+  .yappply .stage .b2 {
+    align-self: flex-end;
+    order: 3;
+    border-radius: 18px;
+    border-bottom-right-radius: 6px;
+  }
+
+  .yappply .stage .b3 {
+    align-self: flex-end;
+    order: 4;
+    border-radius: 18px;
+    border-bottom-right-radius: 6px;
+  }
+
+  .yappply .stage .mascot {
+    align-self: center;
+    order: 5;
+    width: min(200px, 52%);
+    margin-top: 0.15rem;
+  }
+
+  .yappply .stage .t1 {
+    align-self: flex-start;
+    order: 6;
+    transform: none;
+    font-size: 0.88rem;
+    padding: 0.4rem 0.85rem;
+  }
+
+  .yappply .stage .sticker,
+  .yappply .stage .star {
+    display: none;
+  }
+
+  .yappply .feels,
+  .yappply .steps {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 2rem;
+  }
+
+  .yappply .dash {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .yappply .plans {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+  }
+
+  .yappply .plan.best {
+    transform: none;
+  }
+
+  .yappply .posts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}
+
+@media (max-width: 900px) {
+  .yappply .compare {
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    gap: 0.75rem;
+  }
+
+  .yappply .compare-head {
+    display: none;
+  }
+
+  .yappply .compare-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: var(--line);
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff;
+    min-width: 0;
+  }
+
+  .yappply .compare-row > * {
+    border-bottom: 1.5px solid #e7e4f2;
+    padding: 0.8rem 0.95rem;
+  }
+
+  .yappply .compare-row > *:last-child {
+    border-bottom: 0;
+  }
+
+  .yappply .compare-row .compare-feature {
+    background: var(--lilac-soft);
+    border-bottom: var(--line);
+    font-size: 1rem;
+  }
+
+  .yappply .compare-row [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 0.2rem;
+  }
+
+  .yappply .compare-row .us {
+    background: var(--lime-soft);
+  }
+}
+
+@media (max-width: 640px) {
+  .yappply {
+    font-size: 1rem;
+  }
+
+  .yappply .nav {
+    padding: 0.85rem 0;
+  }
+
+  .yappply .nav-in {
+    padding: 0.45rem 0.45rem 0.45rem 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .yappply .logo {
+    font-size: 1.2rem;
+  }
+
+  .yappply .logo-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .yappply .nav .btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  .yappply .hero {
+    padding: 1.35rem 0 2rem;
+  }
+
+  .yappply .hero-eyebrow {
+    font-size: 0.8rem;
+    padding: 0.28rem 0.7rem;
+  }
+
+  .yappply .hero-eyebrow-full {
+    display: none;
+  }
+
+  .yappply .hero-eyebrow-short {
+    display: inline;
+  }
+
+  .yappply .hero h1 {
+    font-size: clamp(2rem, 10vw, 2.55rem);
+    margin: 0.9rem 0 1rem;
+    line-height: 1.05;
+  }
+
+  .yappply .hero-sub {
+    font-size: 1rem;
+    margin-bottom: 1.35rem;
+  }
+
+  .yappply .hero-ctas {
+    gap: 0.65rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .yappply .btn {
+    padding: 0.9rem 1.25rem;
+    font-size: 0.95rem;
+    white-space: normal;
+  }
+
+  .yappply .facts {
+    gap: 0.4rem;
+  }
+
+  .yappply .facts .pill {
+    font-size: 0.8rem;
+  }
+
+  .yappply .stage {
+    padding: 0.9rem 0.8rem 1rem;
+    gap: 0.45rem;
+    border-radius: 24px;
+  }
+
+  .yappply .stage .bubble {
+    font-size: 0.84rem;
+    padding: 0.65rem 0.8rem;
+  }
+
+  .yappply .stage .mascot {
+    width: min(168px, 48%);
+  }
+
+  .yappply .feels,
+  .yappply .steps,
+  .yappply .dash {
+    grid-template-columns: 1fr;
+  }
+
+  .yappply .tile.wide {
+    grid-column: span 1;
+  }
+
+  .yappply .scores {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .yappply .section {
+    padding: 3.25rem 0;
+  }
+
+  .yappply .head.center,
+  .yappply .head {
+    margin-bottom: 1.5rem;
+  }
+
+  .yappply h2 {
+    font-size: clamp(1.7rem, 8vw, 2.4rem);
+    line-height: 1.05;
+  }
+
+  .yappply .final-card {
+    padding: 2.75rem 1.1rem 9rem;
+  }
+
+  .yappply .final-card .mascot-mini {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+  }
+
+  .yappply .final-card .sticker {
+    display: none;
+  }
+
+  .yappply .posts {
+    grid-template-columns: 1fr;
+  }
+
+  .yappply .blog-hero-grid,
+  .yappply .blog-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .yappply .blog-hero-mascot {
+    justify-self: start;
+  }
+
+  .yappply .blog-featured-cover {
+    border-right: 0;
+    border-bottom: var(--line);
+    aspect-ratio: 16 / 10;
+  }
+
+  .yappply .foot-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .yappply .foot-top nav {
+    flex-wrap: wrap;
+    gap: 0.55rem 0.9rem;
+  }
+
+  .yappply .wordmark {
+    font-size: clamp(2.8rem, 18vw, 5rem);
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 380px) {
+  .yappply .hero h1 {
+    font-size: 1.85rem;
+  }
+
+  .yappply .scores {
+    grid-template-columns: 1fr;
+  }
+
+  .yappply .nav-in {
+    padding-left: 0.7rem;
+  }
+}
+
+/* free speaking test */
+.yappply .test {
+  background-color: #fff;
+  background-image: linear-gradient(#efebfb 1.5px, transparent 1.5px);
+  background-size: 100% 40px;
+  border-bottom: var(--line);
+}
+.yappply .tsteps {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  list-style: none;
+  margin: -1rem auto 2.2rem;
+  flex-wrap: wrap;
+}
+.yappply .tsteps li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem 0.35rem 0.4rem;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.yappply .tsteps li.on {
+  background: var(--lime);
+  transform: translateY(-3px);
+}
+.yappply .tsteps li.done {
+  background: var(--lilac-soft);
+}
+.yappply .tico {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lilac-soft);
+  display: grid;
+  place-items: center;
+}
+.yappply .tico svg {
+  width: 26px;
+  height: 26px;
+}
+.yappply .machine {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto;
+  background: #fff;
+  border: var(--line);
+  border-radius: 36px;
+  padding: 1.6rem 1.8rem 1.8rem 4rem;
+  box-shadow: 12px 12px 0 var(--lilac);
+}
+.yappply .holes {
+  position: absolute;
+  left: 1.3rem;
+  top: 1.6rem;
+  bottom: 1.6rem;
+  width: 16px;
+  background: radial-gradient(circle, #e3def5 6px, transparent 7px) 0 0 / 16px 34px repeat-y;
+}
+.yappply .m-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.yappply .m-title {
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+.yappply .m-title em {
+  font-size: 1.15em;
+}
+.yappply .m-body {
+  display: grid;
+  grid-template-columns: 1fr 90px;
+  gap: 1rem;
+  align-items: center;
+}
+.yappply .slot {
+  border: 2px dashed #b9aee6;
+  border-radius: 26px;
+  padding: 0.6rem 1.2rem;
+  background: var(--lilac-soft);
+  overflow: hidden;
+}
+.yappply .slot-row {
+  text-align: center;
+  padding: 0.55rem 0;
+  transition: opacity 0.2s;
+}
+.yappply .slot-row.ghost {
+  color: #9c97b8;
+  font-size: 0.95rem;
+  font-family: var(--serif);
+  font-style: italic;
+}
+.yappply .slot-row.now {
+  font-weight: 800;
+  font-size: clamp(1.3rem, 2.6vw, 1.85rem);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  border-block: 1.5px solid #d9d1f5;
+  padding: 1rem 0;
+}
+.yappply .slot.spinning .slot-row {
+  filter: blur(1.5px);
+}
+.yappply .lever {
+  position: relative;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  width: 90px;
+  padding: 0;
+}
+.yappply .lever svg {
+  width: 60px;
+  margin: 0 auto;
+}
+.yappply .lever .knob {
+  transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.yappply .lever.pulled .knob {
+  transform: translateY(62px);
+}
+.yappply .lever.pulled .stick {
+  transform: scaleY(0.25);
+  transform-origin: 30px 120px;
+  transition: transform 0.35s;
+}
+.yappply .lever .stick {
+  transition: transform 0.35s;
+}
+.yappply .lever-hint {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-6deg);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+.yappply .machine:not([data-state='idle']) .lever-hint {
+  opacity: 0;
+}
+.yappply .panel {
+  display: none;
+  margin-top: 1.4rem;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.yappply .machine[data-state='idle'] .p-idle,
+.yappply .machine[data-state='spun'] .p-spun,
+.yappply .machine[data-state='prep'] .p-prep,
+.yappply .machine[data-state='speak'] .p-speak,
+.yappply .machine[data-state='think'] .p-think {
+  display: flex;
+}
+.yappply .machine[data-state='result'] .p-result {
+  display: block;
+}
+.yappply .timer {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: none;
+}
+.yappply .timer svg {
+  width: 100%;
+  height: 100%;
+}
+.yappply .timer circle {
+  transition: stroke-dashoffset 1s linear;
+}
+.yappply .timer span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 2rem;
+}
+.yappply .t-copy {
+  display: flex;
+  flex-direction: column;
+}
+.yappply .t-copy span {
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+.yappply .live {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 220px;
+}
+.yappply .live b {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.yappply .rec-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff4d8f;
+  animation: yp-pulse 1.2s infinite;
+}
+.yappply .eq {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+}
+.yappply .eq i {
+  width: 6px;
+  border-radius: 4px;
+  background: var(--ink);
+  height: 30%;
+  animation: yp-eq 0.9s ease-in-out infinite;
+}
+.yappply .eq i:nth-child(odd) {
+  background: var(--lilac);
+}
+.yappply .eq i:nth-child(2n) {
+  animation-delay: 0.15s;
+}
+.yappply .eq i:nth-child(3n) {
+  animation-delay: 0.3s;
+}
+.yappply .eq i:nth-child(5n) {
+  animation-delay: 0.45s;
+}
+.yappply .think-yappy {
+  width: 70px;
+  animation: yp-bob 1.6s ease-in-out infinite;
+}
+.yappply .dots {
+  display: flex;
+  gap: 6px;
+}
+.yappply .dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lilac);
+  animation: yp-bounce 0.9s infinite;
+}
+.yappply .dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.yappply .dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.yappply .quick {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr;
+  gap: 0.8rem;
+  align-items: stretch;
+}
+.yappply .q-score {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+.yappply .q-score svg {
+  width: 100%;
+  height: 100%;
+}
+.yappply .q-score span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.yappply .q-score b {
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.yappply .q-score small {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.yappply .q-chip {
+  border: var(--line);
+  border-radius: 22px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.yappply .q-chip small {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+.yappply .q-chip b {
+  font-size: 1.1rem;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.yappply .q-chip.lvl {
+  background: var(--lime);
+}
+.yappply .q-chip.good {
+  background: var(--lilac-soft);
+}
+.yappply .q-chip.fix {
+  background: var(--pink-soft);
+}
+.yappply .gate {
+  margin-top: 1.2rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 24px;
+  padding: 1.1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.yappply .gate-txt {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+}
+.yappply .gate-txt span {
+  color: #c7c4db;
+  font-size: 0.92rem;
+}
+.yappply .gate-row {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1.4;
+  min-width: 260px;
+}
+.yappply .gate input {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  padding: 0.85rem 1.1rem;
+  font: 500 1rem var(--sans);
+}
+.yappply .gate .btn {
+  box-shadow: none;
+  padding: 0.85rem 1.2rem;
+}
+.yappply .err {
+  width: 100%;
+  color: #ff9ccb;
+  font-size: 0.88rem;
+  font-weight: 600;
+  min-height: 0;
+}
+.yappply .err:empty {
+  display: none;
+}
+.yappply .sr {
+  position: absolute;
+  left: -9999px;
+}
+.yappply .full {
+  position: relative;
+  margin-top: 1.2rem;
+}
+.yappply .full.locked .rgrid,
+.yappply .full.locked .pitch {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.7;
+}
+.yappply .lockveil {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  place-items: start center;
+  padding-top: 3rem;
+}
+.yappply .full.locked .lockveil {
+  display: grid;
+}
+.yappply .lockveil svg {
+  width: 64px;
+  filter: drop-shadow(4px 4px 0 #16151f);
+}
+.yappply .rgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+.yappply .rcard {
+  border: 1.5px solid var(--ink);
+  border-radius: 20px;
+  padding: 0.9rem 1rem;
+  background: #fff;
+}
+.yappply .rcard.wide {
+  grid-column: span 2;
+}
+.yappply .rcard h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 0.45rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.yappply .rcard h4 span {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-size: 0.8rem;
+}
+.yappply .tr {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.yappply .tr mark {
+  background: var(--pink-soft);
+  border-radius: 6px;
+  padding: 0 0.2rem;
+  color: #b4235f;
+  font-weight: 700;
+}
+.yappply .tr s {
+  color: #b4235f;
+}
+.yappply .metric {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.yappply .metric small {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.yappply .bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--lilac-soft);
+  margin: 0.5rem 0;
+}
+.yappply .bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--lilac);
+}
+.yappply .note {
+  color: var(--ink-2);
+  font-size: 0.82rem;
+}
+.yappply .prep {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+.yappply .prep span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  border: 1.5px solid var(--ink);
+}
+.yappply .prep .ok {
+  background: var(--lime);
+}
+.yappply .prep .no {
+  background: #fff;
+  border-style: dashed;
+  color: var(--ink-2);
+}
+.yappply .fixline {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+.yappply .fixline s {
+  color: #b4235f;
+}
+.yappply .fixline b {
+  color: #1f7a3d;
+}
+.yappply .swap {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+.yappply .swap span {
+  background: var(--lilac-soft);
+  border-radius: 8px;
+  padding: 0.1rem 0.45rem;
+}
+.yappply .swap b {
+  background: var(--lime);
+  border-radius: 8px;
+  padding: 0.1rem 0.45rem;
+}
+.yappply .rw {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+.yappply .rcard.video {
+  background: var(--lilac-soft);
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0.4rem 1.2rem;
+  align-items: center;
+}
+.yappply .rcard.video h4 {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+}
+.yappply .rcard.video .vthumb {
+  grid-row: 1 / span 3;
+  grid-column: 1;
+}
+.yappply .rcard.video .vt {
+  grid-column: 2;
+  font-size: 1.15rem;
+  margin: 0;
+}
+.yappply .rcard.video .vwhy {
+  grid-column: 2;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  align-self: start;
+}
+.yappply .vthumb svg {
+  width: 100%;
+  height: auto;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+}
+.yappply .pitch {
+  margin-top: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--lime);
+  border: var(--line);
+  border-radius: 24px;
+  padding: 1rem 1.2rem;
+  flex-wrap: wrap;
+}
+.yappply .pitch-yappy {
+  width: 70px;
+  flex: none;
+}
+.yappply .pitch div {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+.yappply .pitch div span {
+  font-size: 0.85rem;
+  color: #4d5a12;
+  font-weight: 600;
+}
+.yappply .again {
+  display: block;
+  margin: 1.1rem auto 0;
+  background: none;
+  border: 0;
+  font: 700 0.95rem var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+.yappply .live-caption {
+  margin: 0.55rem 0 0;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.35;
+  max-height: 4.2em;
+  overflow: hidden;
+}
+@media (max-width: 700px) {
+  .yappply .machine {
+    padding: 1.3rem 1.1rem 1.4rem 2.6rem;
+  }
+  .yappply .holes {
+    left: 0.7rem;
+  }
+  .yappply .m-body {
+    grid-template-columns: 1fr 64px;
+  }
+  .yappply .lever svg {
+    width: 46px;
+  }
+  .yappply .lever {
+    width: 64px;
+  }
+  .yappply .quick {
+    grid-template-columns: 1fr 1fr;
+  }
+  .yappply .q-score {
+    grid-column: span 2;
+    margin: 0 auto;
+  }
+  .yappply .rgrid {
+    grid-template-columns: 1fr;
+  }
+  .yappply .rcard.wide {
+    grid-column: span 1;
+  }
+  .yappply .rcard.video {
+    grid-template-columns: 1fr;
+  }
+  .yappply .rcard.video h4,
+  .yappply .rcard.video .vthumb,
+  .yappply .rcard.video .vt,
+  .yappply .rcard.video .vwhy {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .yappply .gate-row {
+    flex-direction: column;
+  }
+  .yappply .q-chip.fix {
+    grid-column: span 2;
+  }
+  .yappply .m-title {
+    font-size: 1.3rem;
+  }
+}
