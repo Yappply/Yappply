@@ -14,6 +14,7 @@
   font-family: var(--sans);
   color: var(--ink);
   background: var(--white);
+  padding-top: 6.75rem;
   font-size: 1.0625rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
@@ -171,9 +172,13 @@
 }
 
 .yappply .nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
   padding: 1.1rem 0;
-  position: relative;
-  z-index: 5;
+  background: var(--white);
 }
 
 .yappply .nav-in {
@@ -1437,6 +1442,14 @@
   overflow: hidden;
   background: #fff;
   margin-bottom: 2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.yappply a.blog-featured:hover {
+  transform: translateY(-4px);
+  box-shadow: 8px 8px 0 var(--ink);
 }
 
 .yappply .blog-featured-cover {
@@ -1527,6 +1540,64 @@
 
 .yappply .blog-cta-card p {
   color: var(--ink);
+}
+
+.yappply .blog-article-wrap {
+  width: min(760px, 100%);
+}
+
+.yappply .blog-back {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.yappply .blog-article-cover {
+  border: var(--line);
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.yappply .blog-article-cover svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.yappply .blog-article h1 {
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  margin: 0.8rem 0 0.6rem;
+}
+
+.yappply .blog-byline {
+  color: var(--ink-2);
+  font-weight: 600;
+  margin-bottom: 1.6rem;
+}
+
+.yappply .blog-body h2 {
+  font-size: clamp(1.45rem, 3vw, 1.9rem);
+  margin: 1.8rem 0 0.7rem;
+}
+
+.yappply .blog-body p,
+.yappply .blog-body li {
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.yappply .blog-body p {
+  margin: 0 0 1rem;
+}
+
+.yappply .blog-body ul {
+  margin: 0 0 1.1rem;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.45rem;
 }
 
 .yappply .posts > article {
@@ -1794,6 +1865,10 @@
 @media (max-width: 640px) {
   .yappply {
     font-size: 1rem;
+  }
+
+  .yappply {
+    padding-top: 5.6rem;
   }
 
   .yappply .nav {

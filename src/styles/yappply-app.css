@@ -5257,3 +5257,354 @@ button.yp-taking-item {
     display: table-cell;
   }
 }
+
+/* ---------- Login gate (split layout) ---------- */
+.yp-gate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #f6f5f3;
+  color: #16151f;
+}
+
+.yp-gate,
+.yp-gate *,
+.yp-gate *::before,
+.yp-gate *::after {
+  box-sizing: border-box;
+}
+
+.yp-gate-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 20px 40px 16px;
+}
+
+.yp-gate-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.yp-gate-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #16151f;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.yp-gate-logo {
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+}
+
+.yp-gate-back {
+  color: #8b8798;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.yp-gate-back:hover {
+  color: #16151f;
+}
+
+.yp-gate-body {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.yp-gate-body h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 4vh, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.yp-gate-lede {
+  margin: 0 0 14px;
+  color: #7d7a8c;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.yp-gate-lede strong {
+  color: #16151f;
+  font-weight: 750;
+}
+
+.yp-gate-google {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  border-radius: 999px;
+  border: 1px solid #e4e2ea;
+  background: #fff;
+  color: #16151f;
+  font: 650 0.98rem / 1 var(--font-bricolage), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.yp-gate-google:hover {
+  background: #fafafa;
+}
+
+.yp-gate-or {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 16px;
+  color: #9a96a8;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.yp-gate-or::before,
+.yp-gate-or::after {
+  content: '';
+  height: 1px;
+  background: #e6e3ec;
+}
+
+.yp-gate form {
+  display: grid;
+  gap: 10px;
+}
+
+.yp-gate-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.yp-gate-field > span {
+  color: #6f6c7d;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.yp-gate-field input {
+  width: 100%;
+  max-width: 100%;
+  min-height: 44px;
+  border: 1px solid #e5e2eb;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0 14px;
+  color: #16151f;
+  font: 550 0.98rem / 1.3 var(--font-bricolage), system-ui, sans-serif;
+}
+
+.yp-gate-field input::placeholder {
+  color: #b7b4c2;
+}
+
+.yp-gate-field input:focus {
+  outline: none;
+  border-color: #c9b8ff;
+  box-shadow: 0 0 0 3px rgba(201, 184, 255, 0.35);
+}
+
+.yp-gate-password {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.yp-gate-password input {
+  padding-right: 44px;
+}
+
+.yp-gate-password input::-ms-reveal,
+.yp-gate-password input::-ms-clear {
+  display: none;
+}
+
+.yp-gate-eye {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  height: 44px;
+  width: 40px;
+  border: 0;
+  background: transparent;
+  color: #8d8a9a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.yp-gate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+.yp-gate-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #3d3a4a;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.yp-gate-remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: #16151f;
+}
+
+.yp-gate-forgot {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #16151f;
+  font: 650 0.92rem / 1 var(--font-bricolage), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.yp-gate-submit {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  border: 0;
+  border-radius: 12px;
+  background: #17171c;
+  color: #fff;
+  font: 700 1rem / 1 var(--font-bricolage), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.yp-gate-submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.yp-gate-error,
+.yp-gate-note {
+  margin: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.yp-gate-error {
+  color: #b4235f;
+  background: #ffe3f1;
+}
+
+.yp-gate-note {
+  color: #3d3a4a;
+  background: #fff;
+  border: 1px solid #e5e2eb;
+}
+
+.yp-gate-switch {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #6f6c7d;
+  font-size: 0.95rem;
+  font-weight: 550;
+}
+
+.yp-gate-switch span,
+.yp-gate-switch a {
+  color: #16151f;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.yp-gate-fine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: min(460px, 100%);
+  flex: 0 0 auto;
+  margin: 8px auto 0;
+  padding-top: 0;
+  color: #9a96a8;
+  font-size: 0.78rem;
+  font-weight: 550;
+  text-align: center;
+}
+
+.yp-gate-fine .yp-gate-logo {
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
+}
+
+.yp-gate-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 24px;
+  background: #fdf3eb;
+}
+
+.yp-gate-side-art {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .yp-gate {
+    grid-template-columns: 1fr;
+  }
+
+  .yp-gate-form {
+    height: 100%;
+    padding: 16px 20px 12px;
+  }
+
+  .yp-gate-side {
+    display: none;
+  }
+
+  .yp-gate-form {
+    padding: 20px 20px 36px;
+  }
+
+  .yp-gate-body {
+    margin: 0 auto;
+  }
+
+}

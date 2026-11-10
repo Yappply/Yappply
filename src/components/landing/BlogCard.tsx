@@ -4,7 +4,7 @@ import type { BlogPost } from './blogPosts'
 
 export function BlogCard({ post }: { post: BlogPost }) {
   return (
-    <Link href={`/blog#${post.slug}`} className="post">
+    <Link href={`/blog/${post.slug}`} className="post">
       <div className="cover" aria-hidden>
         <BlogCover post={post} />
       </div>

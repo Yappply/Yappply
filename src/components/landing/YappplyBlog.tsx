@@ -7,8 +7,8 @@ import { BlogCover } from './BlogCover'
 import { LandingFooter, LandingNav } from './LandingChrome'
 import {
   BLOG_CATEGORIES,
-  BLOG_POSTS,
   getFeaturedPost,
+  getLibraryPosts,
   type BlogCategory,
 } from './blogPosts'
 import '@/styles/yappply.css'
@@ -20,7 +20,7 @@ export function YappplyBlog() {
 
   const posts = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return BLOG_POSTS.filter((p) => {
+    return getLibraryPosts().filter((p) => {
       if (category !== 'All' && p.category !== (category as BlogCategory)) return false
       if (!q) return true
       return (
@@ -44,8 +44,8 @@ export function YappplyBlog() {
                 Short notes on speaking English <em className="s">out loud.</em>
               </h1>
               <p className="hero-sub">
-                Practical tips for freezing less, correcting faster, and using your daily report.
-                No grammar textbooks.
+                Guides on fluency, pronunciation, meetings, interviews, and speaking practice.
+                Read them here on the page.
               </p>
             </div>
             <div className="blog-hero-mascot bobbing" aria-hidden>
@@ -59,7 +59,7 @@ export function YappplyBlog() {
 
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="wrap">
-            <article className="blog-featured" id={featured.slug}>
+            <Link href={`/blog/${featured.slug}`} className="blog-featured">
               <div className="blog-featured-cover" aria-hidden>
                 <BlogCover post={featured} />
               </div>
@@ -69,7 +69,7 @@ export function YappplyBlog() {
                 <p>{featured.excerpt}</p>
                 <span className="rt">{featured.minutes} min read</span>
               </div>
-            </article>
+            </Link>
 
             <div className="blog-tools">
               <div className="blog-filters" role="group" aria-label="Filter by category">
