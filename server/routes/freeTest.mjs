@@ -10,7 +10,7 @@ router.post('/evaluate', async (req, res) => {
   try {
     const topic = String(req.body?.topic || '').trim().slice(0, 200)
     let transcript = String(req.body?.transcript || '').trim().slice(0, 5000)
-    const durationSec = Math.max(5, Math.min(120, Number(req.body?.durationSec) || 60))
+    const durationSec = 60
     const audioBase64 = String(req.body?.audioBase64 || '').trim()
     const mimeType = String(req.body?.mimeType || 'audio/webm').trim()
 

@@ -101,7 +101,7 @@ export function FreeSpeakingTest() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const topicRef = useRef(TOPICS[0])
   const durationRef = useRef(60)
-  const speakStartedAtRef = useRef(0)
+  const minuteDoneRef = useRef(false)
   const evaluatingRef = useRef(false)
 
   const mic = useMicRecorder()
@@ -202,7 +202,7 @@ export function FreeSpeakingTest() {
   )
 
   const finishSpeaking = useCallback(async () => {
-    if (evaluatingRef.current) return
+    if (evaluatingRef.current || !minuteDoneRef.current) return
     evaluatingRef.current = true
     clearTimer()
     setMicStarting(false)
@@ -210,11 +210,7 @@ export function FreeSpeakingTest() {
     setEvalError('')
     setReport(null)
 
-    const elapsedSec = speakStartedAtRef.current
-      ? Math.round((Date.now() - speakStartedAtRef.current) / 1000)
-      : 60
-    const spokenFor = Math.max(5, Math.min(60, elapsedSec || 60))
-    durationRef.current = spokenFor
+    durationRef.current = 60
 
     let audio: Awaited<ReturnType<typeof micRef.current.stop>> = null
     try {
@@ -241,7 +237,7 @@ export function FreeSpeakingTest() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           topic: topicRef.current,
-          durationSec: spokenFor,
+          durationSec: 60,
           audioBase64: audio.base64,
           mimeType: audio.mimeType,
         }),
@@ -264,22 +260,24 @@ export function FreeSpeakingTest() {
   }, [clearTimer])
 
   const speak = useCallback(() => {
+    clearTimer()
     setState('speak')
     setSpeakLeft(60)
     setTranscript('')
     setReport(null)
     setEvalError('')
     evaluatingRef.current = false
-    speakStartedAtRef.current = Date.now()
+    minuteDoneRef.current = false
     setMicStarting(true)
     void micRef.current.start().then((ok) => {
       setMicStarting(false)
       if (!ok) return
+      countdown(60, setSpeakLeft, () => {
+        minuteDoneRef.current = true
+        void finishSpeaking()
+      })
     })
-    countdown(60, setSpeakLeft, () => {
-      void finishSpeaking()
-    })
-  }, [countdown, finishSpeaking])
+  }, [clearTimer, countdown, finishSpeaking])
 
   const prep = useCallback(() => {
     setState('prep')
@@ -290,6 +288,7 @@ export function FreeSpeakingTest() {
   const reset = useCallback(() => {
     clearTimer()
     evaluatingRef.current = false
+    minuteDoneRef.current = false
     setMicStarting(false)
     try {
       micRef.current.abort()
@@ -608,8 +607,8 @@ export function FreeSpeakingTest() {
                 ))}
               </div>
               <p className="live-caption">
-                Your words are recorded and transcribed with Gemini after you finish — so the report
-                matches what you said.
+                Yappy listens for the full minute. You can&apos;t stop early — the report uses the whole
+                60 seconds.
               </p>
               {mic.error ? (
                 <p className="err" role="alert">
@@ -622,15 +621,13 @@ export function FreeSpeakingTest() {
                 </p>
               ) : null}
             </div>
-            <button
-              type="button"
-              className="btn btn-ink"
-              onClick={() => {
-                void finishSpeaking()
-              }}
-            >
-              I&apos;m done
-            </button>
+            {mic.error && !mic.recording && !micStarting ? (
+              <button type="button" className="btn btn-ink" onClick={speak}>
+                Try the microphone again
+              </button>
+            ) : (
+              <p className="live-caption">Keep speaking until the timer reaches 0.</p>
+            )}
           </div>
 
           <div className="panel p-think">

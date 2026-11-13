@@ -10,16 +10,6 @@ import '@/styles/yappply-app.css'
 
 const REMEMBER_KEY = 'yappply_remember_email'
 
-function MicIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-
 function EyeIcon({ open }: { open: boolean }) {
   if (open) {
     return (
@@ -192,13 +182,6 @@ export function LoginPage() {
             Just looking? <Link href="/#test">Take the free 60-second speaking test</Link>
           </p>
         </div>
-
-        <p className="yp-gate-fine">
-          <MicIcon />
-          Yappy works best in Chrome or Edge, with your microphone on.
-          <YappyMark className="yp-gate-logo" />
-          <span>before Yappy talks</span>
-        </p>
       </section>
 
       <aside className="yp-gate-side">

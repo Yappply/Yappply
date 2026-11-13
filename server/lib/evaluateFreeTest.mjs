@@ -5,6 +5,7 @@ export const FREE_TEST_REPORT_SCHEMA = {
   properties: {
     overall: { type: 'NUMBER' },
     level: { type: 'STRING' },
+    usedStrongerWords: { type: 'BOOLEAN' },
     strength: { type: 'STRING' },
     fixFirst: { type: 'STRING' },
     fillers: { type: 'ARRAY', items: { type: 'STRING' } },
@@ -51,6 +52,7 @@ export const FREE_TEST_REPORT_SCHEMA = {
   required: [
     'overall',
     'level',
+    'usedStrongerWords',
     'strength',
     'fixFirst',
     'fillers',
@@ -95,6 +97,34 @@ function clampOverall(n) {
   return Math.max(0, Math.min(100, Math.round(n)))
 }
 
+function structureProblemCount(structure) {
+  return ['point', 'reason', 'example', 'ending'].filter((key) => !structure?.[key]).length
+}
+
+/** Beginner ≤65, Intermediate 66–90, Advanced >90. */
+export function levelForOverall(overall) {
+  if (overall > 90) return 'Advanced'
+  if (overall >= 66) return 'Intermediate'
+  return 'Beginner'
+}
+
+function applyStrictLevel(report) {
+  const grammarErrors = Array.isArray(report.grammarFixes) ? report.grammarFixes.length : 0
+  const structureProblems = structureProblemCount(report.structure)
+  const usedStrongerWords = report.usedStrongerWords === true
+  let overall = clampOverall(report.overall)
+
+  if (!usedStrongerWords && grammarErrors > 2 && structureProblems > 2) {
+    overall = Math.min(overall, 65)
+  }
+
+  return {
+    ...report,
+    overall,
+    level: levelForOverall(overall),
+  }
+}
+
 export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 60 }) {
   const speech = String(transcript || '').trim()
   const words = wordCount(speech)
@@ -118,13 +148,17 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
           (hasReason ? 4 : 0),
       )
 
-  let level = 'Beginner'
-  if (overall >= 78) level = 'Advanced'
-  else if (overall >= 58) level = 'Intermediate'
+  const usedStrongerWords = ![
+    { weak: 'good' },
+    { weak: 'help people' },
+    { weak: 'nice' },
+    { weak: 'very' },
+  ].some((s) => speech.toLowerCase().includes(s.weak.toLowerCase()))
 
-  return {
+  return applyStrictLevel({
     overall,
-    level,
+    level: 'Beginner',
+    usedStrongerWords,
     strength: answered
       ? words > 40
         ? 'You kept talking — good fluency base'
@@ -178,7 +212,7 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
         } — 30 minutes a day with me fixes exactly this."`
       : `"I didn't catch much that time. Try again, then practise 30 minutes a day with me."`,
     transcript: speech,
-  }
+  })
 }
 
 function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
@@ -192,7 +226,7 @@ function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
           better: String(g?.better || '').trim(),
         }))
         .filter((g) => g.heard && g.better)
-        .slice(0, 4)
+        .slice(0, 6)
     : fallback.grammarFixes
 
   const strongerWords = Array.isArray(raw.strongerWords)
@@ -210,10 +244,19 @@ function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
     : fallback.fillers
 
   const structure = raw.structure && typeof raw.structure === 'object' ? raw.structure : {}
+  const listedWeakerWords =
+    Array.isArray(raw.strongerWords) &&
+    raw.strongerWords.some((s) => String(s?.weak || '').trim() && String(s?.stronger || '').trim())
+  const usedStrongerWords = listedWeakerWords
+    ? false
+    : typeof raw.usedStrongerWords === 'boolean'
+      ? raw.usedStrongerWords
+      : strongerWords.length === 0
 
-  return {
+  return applyStrictLevel({
     overall: clampOverall(Number(raw.overall)),
-    level: String(raw.level || fallback.level).slice(0, 40),
+    level: 'Beginner',
+    usedStrongerWords,
     strength: String(raw.strength || fallback.strength).slice(0, 120),
     fixFirst: String(raw.fixFirst || fallback.fixFirst).slice(0, 120),
     fillers,
@@ -233,7 +276,7 @@ function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
     watchTip: String(raw.watchTip || fallback.watchTip).slice(0, 200),
     pitch: String(raw.pitch || fallback.pitch).slice(0, 280),
     transcript: String(transcript || '').trim(),
-  }
+  })
 }
 
 export async function evaluateFreeTestWithGemini({ topic, transcript, durationSec = 60 }) {
@@ -257,11 +300,14 @@ export async function evaluateFreeTestWithGemini({ topic, transcript, durationSe
 
   const systemInstruction = `You are Yappy, a friendly English speaking coach for Yappply's free 60-second test.
 Return ONLY JSON matching the schema. Base every note on the learner's actual words.
-overall is 0–100. level is Beginner, Intermediate, or Advanced (you may add a short qualifier).
+overall is 0–100. Do not add a qualifier to level — the server sets it:
+Beginner when overall is 65 or less, Intermediate from 66 to 90, Advanced only above 90.
+usedStrongerWords is true only when the learner actually used precise, specific vocabulary. Set it false when they stayed with basic words (good, nice, very, thing, stuff, a lot) and never upgraded them.
+If usedStrongerWords is false AND there are more than 2 grammarFixes AND more than 2 of point/reason/example/ending are missing, set overall to 65 or below. That learner is a Beginner.
 fillers lists filler words/phrases they used (umm, like, basically…).
-paceWpm is estimated words per minute for the timed answer.
-grammarFixes: up to 3 real phrases from their speech with natural corrections.
-strongerWords: up to 3 weak → stronger swaps from their speech.
+paceWpm is estimated words per minute for the full 60-second answer.
+grammarFixes: every clear grammar mistake from their speech, up to 6, each with a natural correction. Do not stop at one example when you hear more.
+strongerWords: up to 4 weak → stronger swaps from their speech. Leave this empty when usedStrongerWords is true.
 rewritten: a polished 2–4 sentence version of THEIR answer to the topic.
 pitch: one short quote from Yappy referring to what they said.
 Be constructive and specific.`
