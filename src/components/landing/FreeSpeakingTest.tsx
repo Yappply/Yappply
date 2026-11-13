@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMicRecorder } from '../../hooks/useMicRecorder'
 
@@ -129,6 +128,7 @@ export function FreeSpeakingTest() {
   const [report, setReport] = useState<FreeTestReport | null>(null)
   const [transcript, setTranscript] = useState('')
   const [evalError, setEvalError] = useState('')
+  const [triesLeft, setTriesLeft] = useState<number | null>(null)
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -138,6 +138,21 @@ export function FreeSpeakingTest() {
   }, [])
 
   useEffect(() => () => clearTimer(), [clearTimer])
+
+  useEffect(() => {
+    let cancel = false
+    fetch('/api/free-test/allowance')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancel && Number.isFinite(Number(data?.remaining))) {
+          setTriesLeft(Number(data.remaining))
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancel = true
+    }
+  }, [])
 
   const stepIndex = useMemo(() => ORDER.indexOf(STEP_OF[state]), [state])
 
@@ -158,7 +173,7 @@ export function FreeSpeakingTest() {
   }, [idx])
 
   const spin = useCallback(() => {
-    if (busy) return
+    if (busy || triesLeft === 0) return
     setBusy(true)
     setPulled(true)
     setTimeout(() => setPulled(false), 450)
@@ -182,7 +197,7 @@ export function FreeSpeakingTest() {
         setState('spun')
       }
     }, 70)
-  }, [busy, pick, showTopic])
+  }, [busy, pick, showTopic, triesLeft])
 
   const countdown = useCallback(
     (total: number, setter: (n: number) => void, onEnd: () => void) => {
@@ -243,10 +258,14 @@ export function FreeSpeakingTest() {
         }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.error || 'Could not build your report')
+      if (!res.ok) {
+        if (res.status === 429) setTriesLeft(0)
+        throw new Error(data?.error || 'Could not build your report')
+      }
       const heard = String(data.transcript || data.report?.transcript || '').trim()
       setTranscript(heard)
       setReport(data.report as FreeTestReport)
+      if (Number.isFinite(Number(data?.remaining))) setTriesLeft(Number(data.remaining))
     } catch (err) {
       setEvalError(err instanceof Error ? err.message : 'Could not build your report')
     } finally {
@@ -260,6 +279,7 @@ export function FreeSpeakingTest() {
   }, [clearTimer])
 
   const speak = useCallback(() => {
+    if (triesLeft === 0) return
     clearTimer()
     setState('speak')
     setSpeakLeft(60)
@@ -277,34 +297,13 @@ export function FreeSpeakingTest() {
         void finishSpeaking()
       })
     })
-  }, [clearTimer, countdown, finishSpeaking])
+  }, [clearTimer, countdown, finishSpeaking, triesLeft])
 
   const prep = useCallback(() => {
     setState('prep')
     setPrepLeft(15)
     countdown(15, setPrepLeft, speak)
   }, [countdown, speak])
-
-  const reset = useCallback(() => {
-    clearTimer()
-    evaluatingRef.current = false
-    minuteDoneRef.current = false
-    setMicStarting(false)
-    try {
-      micRef.current.abort()
-    } catch {
-      /* ignore */
-    }
-    setTopicNow('Pull the lever to get your topic')
-    setState('idle')
-    setReport(null)
-    setTranscript('')
-    setEvalError('')
-    setLocked(true)
-    setGateVisible(true)
-    setEmail('')
-    setEmailErr('')
-  }, [clearTimer])
 
   const onGateSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -358,6 +357,13 @@ export function FreeSpeakingTest() {
             How good is your English, <em className="s">really?</em>
           </h2>
           <p>Spin a topic. Talk for a minute. Yappy tells you what you nailed and what to fix.</p>
+          {triesLeft === 0 ? (
+            <p className="err" role="status">
+              You&apos;ve used both free tests on this browser. Start daily practice to keep going.
+            </p>
+          ) : triesLeft === 1 ? (
+            <p>1 free test left on this browser.</p>
+          ) : null}
         </div>
 
         <ol className="tsteps" aria-label="Test steps">
@@ -809,59 +815,8 @@ export function FreeSpeakingTest() {
                     {report?.rewritten ? `“${report.rewritten}”` : '—'}
                   </p>
                 </article>
-                <article className="rcard video">
-                  <h4>Watch next</h4>
-                  <div className="vthumb" aria-hidden>
-                    <svg viewBox="0 0 160 90">
-                      <rect width="160" height="90" rx="12" fill="#C9B8FF" />
-                      <circle cx="80" cy="45" r="18" fill="#fff" stroke="#16151F" strokeWidth="3" />
-                      <path d="M75 36l14 9-14 9z" fill="#16151F" />
-                      <text
-                        x="12"
-                        y="80"
-                        fontFamily="Bricolage Grotesque,sans-serif"
-                        fontWeight="800"
-                        fontSize="11"
-                        fill="#16151F"
-                      >
-                        tip
-                      </text>
-                    </svg>
-                  </div>
-                  <b className="vt">
-                    {fillers.length
-                      ? `How to stop saying “${fillers[0]}”`
-                      : 'How to sound more natural'}
-                  </b>
-                  <span className="vwhy">{report?.watchTip || ''}</span>
-                </article>
-              </div>
-              <div className="pitch">
-                <svg className="pitch-yappy" viewBox="0 0 300 330" aria-hidden>
-                  <use href="#yappy" />
-                </svg>
-                <div>
-                  <b>{report?.pitch || '“Practice 30 minutes a day with me.”'}</b>
-                  <span>Yappy, after hearing you speak</span>
-                </div>
-                <Link href="/login" className="btn btn-lime">
-                  Start daily practice
-                </Link>
               </div>
             </div>
-            <button
-              className="again"
-              type="button"
-              onClick={() => {
-                reset()
-                machineRef.current?.scrollIntoView({
-                  behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-                  block: 'center',
-                })
-              }}
-            >
-              Try another topic
-            </button>
           </div>
         </div>
       </div>

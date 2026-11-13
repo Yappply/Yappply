@@ -1,10 +1,60 @@
+import { randomUUID } from 'node:crypto'
 import { Router } from 'express'
 import { FreeTestLead } from '../models/FreeTestLead.mjs'
+import { FreeTestAttempt } from '../models/FreeTestAttempt.mjs'
 import { evaluateFreeTestWithGemini } from '../lib/evaluateFreeTest.mjs'
 import { clientMeta } from '../middleware/auth.mjs'
 import { resolveApiKey, transcribeAudio } from '../geminiApi.mjs'
 
 const router = Router()
+const FREE_TEST_LIMIT = 2
+const VISITOR_COOKIE = 'yappy_ft'
+
+function readCookie(req, name) {
+  const raw = String(req.headers.cookie || '')
+  for (const part of raw.split(';')) {
+    const [key, ...rest] = part.trim().split('=')
+    if (key === name) return decodeURIComponent(rest.join('='))
+  }
+  return ''
+}
+
+function writeVisitorCookie(res, id) {
+  const parts = [
+    `${VISITOR_COOKIE}=${encodeURIComponent(id)}`,
+    'Path=/',
+    `Max-Age=${60 * 60 * 24 * 365}`,
+    'HttpOnly',
+    'SameSite=Lax',
+  ]
+  if (process.env.NODE_ENV === 'production') parts.push('Secure')
+  res.append('Set-Cookie', parts.join('; '))
+}
+
+async function visitorUsage(req, res) {
+  let visitorId = readCookie(req, VISITOR_COOKIE)
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(visitorId)) {
+    visitorId = randomUUID()
+    writeVisitorCookie(res, visitorId)
+  }
+  const used = await FreeTestAttempt.countDocuments({ visitorId })
+  return {
+    visitorId,
+    used,
+    remaining: Math.max(0, FREE_TEST_LIMIT - used),
+    allowed: used < FREE_TEST_LIMIT,
+  }
+}
+
+router.get('/allowance', async (req, res) => {
+  try {
+    const usage = await visitorUsage(req, res)
+    res.json({ limit: FREE_TEST_LIMIT, used: usage.used, remaining: usage.remaining })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Could not check free-test attempts' })
+  }
+})
 
 router.post('/evaluate', async (req, res) => {
   try {
@@ -16,6 +66,15 @@ router.post('/evaluate', async (req, res) => {
 
     if (!topic) {
       res.status(400).json({ error: 'Missing topic' })
+      return
+    }
+
+    const usage = await visitorUsage(req, res)
+    if (!usage.allowed) {
+      res.status(429).json({
+        error: 'You have already used both free tests on this browser.',
+        remaining: 0,
+      })
       return
     }
 
@@ -49,10 +108,14 @@ router.post('/evaluate', async (req, res) => {
       durationSec,
     })
 
+    await FreeTestAttempt.create({ visitorId: usage.visitorId })
+    const remaining = Math.max(0, usage.remaining - 1)
+
     res.json({
       report,
       model,
       asrModel,
+      remaining,
       heard: Boolean(transcript),
       transcript,
     })
@@ -76,6 +139,14 @@ router.post('/leads', async (req, res) => {
     }
     if (!topic) {
       res.status(400).json({ error: 'Missing topic' })
+      return
+    }
+
+    const prior = await FreeTestLead.countDocuments({ email })
+    if (prior >= FREE_TEST_LIMIT) {
+      res.status(429).json({
+        error: 'This email has already been used for 2 free tests.',
+      })
       return
     }
 
