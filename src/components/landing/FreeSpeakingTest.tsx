@@ -99,6 +99,8 @@ function scoreDash(overall: number) {
 export function FreeSpeakingTest() {
   const machineRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const speakStopRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const speakDeadlineRef = useRef(0)
   const topicRef = useRef(TOPICS[0])
   const durationRef = useRef(60)
   const minuteDoneRef = useRef(false)
@@ -134,6 +136,10 @@ export function FreeSpeakingTest() {
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
+    }
+    if (speakStopRef.current) {
+      clearTimeout(speakStopRef.current)
+      speakStopRef.current = null
     }
   }, [])
 
@@ -203,6 +209,8 @@ export function FreeSpeakingTest() {
 
   const finishSpeaking = useCallback(async () => {
     if (evaluatingRef.current || !minuteDoneRef.current) return
+    const remainMs = speakDeadlineRef.current - performance.now()
+    if (speakDeadlineRef.current && remainMs > 400) return
     evaluatingRef.current = true
     clearTimer()
     setMicStarting(false)
@@ -272,12 +280,20 @@ export function FreeSpeakingTest() {
     void micRef.current.start().then((ok) => {
       setMicStarting(false)
       if (!ok) return
-      countdown(60, setSpeakLeft, () => {
+      const started = performance.now()
+      speakDeadlineRef.current = started + 60_000
+      setSpeakLeft(60)
+      timerRef.current = setInterval(() => {
+        const remain = speakDeadlineRef.current - performance.now()
+        setSpeakLeft(Math.max(0, Math.ceil(remain / 1000)))
+      }, 200)
+      speakStopRef.current = setTimeout(() => {
+        speakStopRef.current = null
         minuteDoneRef.current = true
         void finishSpeaking()
-      })
+      }, 60_000)
     })
-  }, [clearTimer, countdown, finishSpeaking])
+  }, [clearTimer, finishSpeaking])
 
   const prep = useCallback(() => {
     setState('prep')
@@ -636,7 +652,7 @@ export function FreeSpeakingTest() {
             </svg>
             <div className="t-copy">
               <b>Yappy is listening back…</b>
-              <span>Transcribing your speech, then checking grammar, vocabulary, pace and structure.</span>
+              <span>Transcribing the full minute, then checking grammar, vocabulary, pace and structure.</span>
             </div>
             <div className="dots" aria-hidden>
               <i />
@@ -754,7 +770,15 @@ export function FreeSpeakingTest() {
                   <div className="bar">
                     <i style={{ width: paceBarWidth(report?.paceWpm || 0) }} />
                   </div>
-                  <small className="note">Good range. Natural pace is 120–150.</small>
+                  <small className="note">
+                    {report
+                      ? report.paceWpm >= 120 && report.paceWpm <= 150
+                        ? 'In the natural range of 120–150.'
+                        : report.paceWpm > 150
+                          ? 'Faster than the natural 120–150.'
+                          : 'Slower than the natural 120–150.'
+                      : 'Natural pace is 120–150.'}
+                  </small>
                 </article>
                 <article className="rcard">
                   <h4>Did you answer it?</h4>

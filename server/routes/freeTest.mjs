@@ -32,7 +32,7 @@ router.post('/evaluate', async (req, res) => {
           mimeType,
           languageCodes: ['en-US'],
         })
-        transcript = String(asr.transcript || '').trim().slice(0, 5000)
+        transcript = String(asr.transcript || '').trim().slice(0, 12000)
         asrModel = asr.model
       } catch (err) {
         console.warn('Free-test transcription failed', err)

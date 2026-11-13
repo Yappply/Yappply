@@ -72,6 +72,18 @@ export function useMicRecorder() {
     }
 
     try {
+      const previous = recorderRef.current
+      recorderRef.current = null
+      stopResolveRef.current = null
+      if (previous && previous.state !== 'inactive') {
+        previous.ondataavailable = null
+        previous.onstop = null
+        try {
+          previous.stop()
+        } catch {
+          /* ignore */
+        }
+      }
       releaseStream()
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -122,7 +134,9 @@ export function useMicRecorder() {
           .catch(() => resolve(null))
       }
 
-      recorder.start(250)
+      // One file for the whole take. A timeslice splits the WebM so the transcriber
+      // often only reads the first few seconds.
+      recorder.start()
       setRecording(true)
       return true
     } catch {
@@ -144,6 +158,13 @@ export function useMicRecorder() {
     return new Promise((resolve) => {
       stopResolveRef.current = resolve
       try {
+        if (recorder.state === 'recording') {
+          try {
+            recorder.requestData()
+          } catch {
+            /* flush is optional; stop still returns the full file */
+          }
+        }
         recorder.stop()
       } catch {
         stopResolveRef.current = null

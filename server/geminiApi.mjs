@@ -182,10 +182,21 @@ export async function transcribeAudio(
 
   for (const model of TRANSCRIBE_MODELS) {
     const isDedicated = model.includes('transcribe')
+    const fullMinuteInstruction =
+      'This recording is a full 60 seconds. Transcribe every word from the first second through the last second. ' +
+      'Do not stop at pauses. Do not summarize. Do not leave out the ending. ' +
+      'Keep filler words (um, uh, like, you know). Do not correct grammar. ' +
+      'Return only the transcript text.'
     const body = isDedicated
       ? {
-          contents: [{ role: 'user', parts: [audioPart] }],
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: fullMinuteInstruction }, audioPart],
+            },
+          ],
           generationConfig: {
+            maxOutputTokens: 8192,
             audioTranscriptionConfig: {
               languageCodes,
               mode: 'VERBATIM',
@@ -194,21 +205,14 @@ export async function transcribeAudio(
         }
       : {
           systemInstruction: {
-            parts: [
-              {
-                text:
-                  'You are an expert English speech-to-text engine. Transcribe the audio exactly as spoken. ' +
-                  'Keep filler words (um, uh, like, you know). Do not correct grammar. ' +
-                  'Return only the transcript text — no quotes, labels, or commentary.',
-              },
-            ],
+            parts: [{ text: fullMinuteInstruction }],
           },
           contents: [
             {
               role: 'user',
               parts: [
                 {
-                  text: 'Transcribe this English speaking-test audio verbatim.',
+                  text: 'Transcribe this entire 60-second English recording verbatim, start to finish.',
                 },
                 audioPart,
               ],
@@ -216,7 +220,7 @@ export async function transcribeAudio(
           ],
           generationConfig: {
             temperature: 0,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 8192,
           },
         }
 

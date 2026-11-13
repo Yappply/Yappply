@@ -11,6 +11,7 @@ export const FREE_TEST_REPORT_SCHEMA = {
     fillers: { type: 'ARRAY', items: { type: 'STRING' } },
     paceWpm: { type: 'NUMBER' },
     answered: { type: 'BOOLEAN' },
+    onTopic: { type: 'BOOLEAN' },
     answeredNote: { type: 'STRING' },
     structure: {
       type: 'OBJECT',
@@ -58,6 +59,7 @@ export const FREE_TEST_REPORT_SCHEMA = {
     'fillers',
     'paceWpm',
     'answered',
+    'onTopic',
     'answeredNote',
     'structure',
     'structureNote',
@@ -93,8 +95,16 @@ function detectFillers(text) {
 }
 
 function clampOverall(n) {
-  if (!Number.isFinite(n)) return 55
+  if (!Number.isFinite(n)) return 0
   return Math.max(0, Math.min(100, Math.round(n)))
+}
+
+function fillerCount(text) {
+  return (String(text || '').match(FILLER_RE) || []).length
+}
+
+function umCount(text) {
+  return (String(text || '').match(/\bum+\b/gi) || []).length
 }
 
 function structureProblemCount(structure) {
@@ -108,18 +118,98 @@ export function levelForOverall(overall) {
   return 'Beginner'
 }
 
-function applyStrictLevel(report) {
-  const grammarErrors = Array.isArray(report.grammarFixes) ? report.grammarFixes.length : 0
-  const structureProblems = structureProblemCount(report.structure)
-  const usedStrongerWords = report.usedStrongerWords === true
-  let overall = clampOverall(report.overall)
+function strictOverall({ answered, structure, grammarErrors, usedStrongerWords, fillersHeard, ums, paceWpm, words }) {
+  if (!words) return 0
+  if (!answered) return Math.min(15, Math.round(words / 4))
 
+  let score = 18
+  if (structure.point) score += 10
+  if (structure.reason) score += 12
+  if (structure.example) score += 14
+  if (structure.ending) score += 8
+  score += Math.max(0, 18 - grammarErrors * 8)
+  if (usedStrongerWords) score += 12
+  if (paceWpm >= 120 && paceWpm <= 150) score += 8
+  else if (paceWpm >= 110 && paceWpm <= 165) score += 3
+  score -= Math.min(20, fillersHeard * 4)
+
+  if (!structure.point) score = Math.min(score, 30)
+  if (!structure.reason && !structure.example) score = Math.min(score, 48)
+  if (words < 50) score = Math.min(score, 45)
+  else if (words < 80) score = Math.min(score, 70)
+  if (paceWpm < 80) score = Math.min(score, 55)
+  else if (paceWpm < 110) score = Math.min(score, 78)
+  if (paceWpm > 180) score = Math.min(score, 75)
+
+  const structureProblems = structureProblemCount(structure)
   if (!usedStrongerWords && grammarErrors > 2 && structureProblems > 2) {
-    overall = Math.min(overall, 65)
+    score = Math.min(score, 65)
+  }
+  if (structureProblems > 0 && ums > 2) {
+    score = Math.min(score, 39)
+  }
+
+  return clampOverall(score)
+}
+
+function applyStrictLevel(report, { durationSec = 60 } = {}) {
+  const speech = String(report.transcript || '')
+  const words = wordCount(speech)
+  const minutes = Math.max(Number(durationSec) || 60, 1) / 60
+  const paceWpm = words ? Math.round(words / minutes) : 0
+  const fillersHeard = fillerCount(speech)
+  const ums = umCount(speech)
+  const grammarErrors = Array.isArray(report.grammarFixes) ? report.grammarFixes.length : 0
+  const usedStrongerWords = report.usedStrongerWords === true
+  const modelSaidNo = report.answered !== true
+
+  let answered = report.answered === true && words >= 25
+  let structure = {
+    point: Boolean(report.structure?.point),
+    reason: Boolean(report.structure?.reason),
+    example: Boolean(report.structure?.example),
+    ending: Boolean(report.structure?.ending),
+  }
+  if (!answered) {
+    structure = { point: false, reason: false, example: false, ending: false }
+  }
+
+  const overall = strictOverall({
+    answered,
+    structure,
+    grammarErrors,
+    usedStrongerWords,
+    fillersHeard,
+    ums,
+    paceWpm,
+    words,
+  })
+
+  let answeredNote = String(report.answeredNote || '')
+  let strength = report.strength
+  let fixFirst = report.fixFirst
+  if (!answered) {
+    answeredNote =
+      words >= 25 && answeredNote && modelSaidNo
+        ? answeredNote
+        : words
+          ? words < 25
+            ? 'Too little was said to count as an answer.'
+            : 'This did not answer the topic, so the score stays low.'
+          : 'We did not catch an answer.'
+    strength = words ? 'You used the minute' : 'No answer captured'
+    fixFirst = 'Answer the topic directly'
   }
 
   return {
     ...report,
+    answered,
+    answeredNote: answeredNote.slice(0, 200),
+    strength: String(strength || '').slice(0, 120),
+    fixFirst: String(fixFirst || '').slice(0, 120),
+    structure,
+    paceWpm,
+    fillers: report.fillers?.length ? report.fillers : detectFillers(speech),
     overall,
     level: levelForOverall(overall),
   }
@@ -130,23 +220,11 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
   const words = wordCount(speech)
   const fillers = detectFillers(speech)
   const fillerCount = (speech.match(FILLER_RE) || []).length
-  const minutes = Math.max(durationSec / 60, 0.4)
-  const paceWpm = words ? Math.round(words / minutes) : 0
-  const answered = words >= 12
   const hasExample = /\b(for example|for instance|like when|one time|last year|yesterday)\b/i.test(
     speech,
   )
   const hasReason = /\b(because|so that|that's why|since)\b/i.test(speech)
-  const overall = !speech
-    ? 0
-    : clampOverall(
-        45 +
-          Math.min(35, words * 0.6) -
-          fillerCount * 3 +
-          (answered ? 8 : 0) +
-          (hasExample ? 6 : 0) +
-          (hasReason ? 4 : 0),
-      )
+  const answered = words >= 50 && (hasReason || hasExample)
 
   const usedStrongerWords = ![
     { weak: 'good' },
@@ -156,7 +234,7 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
   ].some((s) => speech.toLowerCase().includes(s.weak.toLowerCase()))
 
   return applyStrictLevel({
-    overall,
+    overall: 0,
     level: 'Beginner',
     usedStrongerWords,
     strength: answered
@@ -173,13 +251,13 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
             ? 'Say more — aim for 60–90 words'
             : 'Tighten grammar endings',
     fillers,
-    paceWpm,
+    paceWpm: 0,
     answered,
     answeredNote: answered
       ? 'You addressed the topic with a clear main point.'
       : 'We barely caught an answer — speak closer to the mic next time.',
     structure: {
-      point: answered,
+      point: words >= 30,
       reason: hasReason,
       example: hasExample,
       ending: /\b(so|overall|in the end|that's why)\b/i.test(speech),
@@ -212,7 +290,7 @@ export function buildFallbackFreeTestReport({ topic, transcript, durationSec = 6
         } — 30 minutes a day with me fixes exactly this."`
       : `"I didn't catch much that time. Try again, then practise 30 minutes a day with me."`,
     transcript: speech,
-  })
+  }, { durationSec })
 }
 
 function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
@@ -261,7 +339,7 @@ function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
     fixFirst: String(raw.fixFirst || fallback.fixFirst).slice(0, 120),
     fillers,
     paceWpm: Math.max(0, Math.round(Number(raw.paceWpm) || fallback.paceWpm)),
-    answered: Boolean(raw.answered ?? fallback.answered),
+    answered: raw.answered === true && raw.onTopic !== false && wordCount(transcript) >= 25,
     answeredNote: String(raw.answeredNote || fallback.answeredNote).slice(0, 200),
     structure: {
       point: Boolean(structure.point ?? fallback.structure.point),
@@ -276,7 +354,7 @@ function normalizeFreeTestReport(raw, { topic, transcript, durationSec }) {
     watchTip: String(raw.watchTip || fallback.watchTip).slice(0, 200),
     pitch: String(raw.pitch || fallback.pitch).slice(0, 280),
     transcript: String(transcript || '').trim(),
-  })
+  }, { durationSec })
 }
 
 export async function evaluateFreeTestWithGemini({ topic, transcript, durationSec = 60 }) {
@@ -298,19 +376,18 @@ export async function evaluateFreeTestWithGemini({ topic, transcript, durationSe
     }
   }
 
-  const systemInstruction = `You are Yappy, a friendly English speaking coach for Yappply's free 60-second test.
-Return ONLY JSON matching the schema. Base every note on the learner's actual words.
-overall is 0–100. Do not add a qualifier to level — the server sets it:
-Beginner when overall is 65 or less, Intermediate from 66 to 90, Advanced only above 90.
-usedStrongerWords is true only when the learner actually used precise, specific vocabulary. Set it false when they stayed with basic words (good, nice, very, thing, stuff, a lot) and never upgraded them.
-If usedStrongerWords is false AND there are more than 2 grammarFixes AND more than 2 of point/reason/example/ending are missing, set overall to 65 or below. That learner is a Beginner.
-fillers lists filler words/phrases they used (umm, like, basically…).
-paceWpm is estimated words per minute for the full 60-second answer.
-grammarFixes: every clear grammar mistake from their speech, up to 6, each with a natural correction. Do not stop at one example when you hear more.
-strongerWords: up to 4 weak → stronger swaps from their speech. Leave this empty when usedStrongerWords is true.
-rewritten: a polished 2–4 sentence version of THEIR answer to the topic.
-pitch: one short quote from Yappy referring to what they said.
-Be constructive and specific.`
+  const systemInstruction = `You are a strict English speaking examiner for Yappply's free 60-second test.
+Return ONLY JSON matching the schema. Judge only the learner's actual words. Do not be generous.
+The server replaces overall and level. Still set overall yourself, harshly:
+0–15 if they did not answer the topic, 16–45 for a thin or poorly built answer, 46–65 beginner, 66–90 intermediate, above 90 only for a precise, accurate, fully structured minute.
+answered and onTopic are true ONLY when the speech directly answers THIS topic with a real point. Off-topic talk, "I don't know", silence, repeating the question, or a few vague words means both are false.
+If answered or onTopic is false, point, reason, example, and ending must all be false, and overall must be 15 or below.
+point is true only for a clear main idea that answers the topic. reason is true only for a real because. example is true only for a specific person, place, time, or event. ending is true only for a closing line.
+usedStrongerWords is true only for precise vocabulary. Basic words (good, nice, very, thing, stuff) mean false.
+grammarFixes: every clear grammar mistake, up to 6. Do not hide errors.
+strongerWords: up to 4 weak → stronger swaps. Empty when usedStrongerWords is true.
+fillers: filler words they used. paceWpm: words per minute across the full 60 seconds.
+rewritten: a polished 2–4 sentence version of THEIR answer. pitch: one short quote from Yappy about what they said.`
 
   const prompt = `Free 60-second speaking test.
 
@@ -318,7 +395,7 @@ Topic: ${topic}
 Duration: ${durationSec} seconds
 Learner speech:
 """
-${speech.slice(0, 3500)}
+${speech.slice(0, 8000)}
 """
 
 Produce the free-test report JSON now.`
@@ -328,7 +405,7 @@ Produce the free-test report JSON now.`
       systemInstruction,
       prompt,
       generationConfig: {
-        temperature: 0.35,
+        temperature: 0.15,
         maxOutputTokens: 2500,
         responseMimeType: 'application/json',
         responseSchema: FREE_TEST_REPORT_SCHEMA,
