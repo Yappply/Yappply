@@ -6,32 +6,108 @@ import { ErrorLine, LoadingLine } from '../components/AdminWidgets'
 import { useAdminData } from '../hooks/useAdminData'
 import { fetchFreeTestLeads, fmtWhen, type FreeTestLeadRow } from '../lib/adminApi'
 
+type ReportShape = {
+  overall?: number | null
+  level?: string
+  strength?: string
+  fixFirst?: string
+  fillers?: string[]
+  paceWpm?: number | null
+  answered?: boolean
+  answeredNote?: string
+  structure?: { point?: boolean; reason?: boolean; example?: boolean; ending?: boolean }
+  structureNote?: string
+  grammarFixes?: Array<{ heard?: string; better?: string }>
+  strongerWords?: Array<{ weak?: string; stronger?: string }>
+  rewritten?: string
+  watchTip?: string
+  pitch?: string
+  transcript?: string
+}
+
 function LeadDetail({ lead }: { lead: FreeTestLeadRow }) {
+  const report = (lead.report || null) as ReportShape | null
+  const structure = report?.structure || {}
+  const grammar = Array.isArray(report?.grammarFixes) ? report.grammarFixes : []
+  const swaps = Array.isArray(report?.strongerWords) ? report.strongerWords : []
+  const fillers = Array.isArray(report?.fillers) ? report.fillers.filter(Boolean) : []
+  const transcript = lead.transcript?.trim() || report?.transcript?.trim() || ''
+  const parts = [
+    ['Point', structure.point],
+    ['Reason', structure.reason],
+    ['Example', structure.example],
+    ['Ending', structure.ending],
+  ] as const
+
   return (
     <div className="yp-admin-lead-detail">
       <p>
-        <strong>Topic:</strong> {lead.topic}
+        <strong>Email:</strong> {lead.email}
       </p>
       <p>
-        <strong>Transcript:</strong>{' '}
-        {lead.transcript?.trim() ? lead.transcript : 'No speech captured'}
+        <strong>Topic:</strong> {lead.topic}
       </p>
-      {lead.report ? (
-        <dl className="yp-flag-evidence">
-          {(['overall', 'level', 'strength', 'fixFirst', 'paceWpm', 'answeredNote', 'pitch'] as const).map(
-            (key) => {
-              const value = (lead.report as Record<string, unknown>)?.[key]
-              if (value == null || value === '') return null
-              return (
-                <div key={key}>
-                  <dt>{key}</dt>
-                  <dd>{String(value)}</dd>
-                </div>
-              )
-            },
-          )}
-        </dl>
-      ) : null}
+      {report ? (
+        <>
+          <p>
+            <strong>Score:</strong> {report.overall ?? '—'} · <strong>Level:</strong>{' '}
+            {report.level || '—'} · <strong>Pace:</strong>{' '}
+            {report.paceWpm != null ? `${report.paceWpm} wpm` : '—'} · <strong>Answered:</strong>{' '}
+            {report.answered ? 'Yes' : 'No'}
+          </p>
+          <p>
+            <strong>Strength:</strong> {report.strength || '—'}
+          </p>
+          <p>
+            <strong>Fix first:</strong> {report.fixFirst || '—'}
+          </p>
+          {report.answeredNote ? (
+            <p>
+              <strong>Answer note:</strong> {report.answeredNote}
+            </p>
+          ) : null}
+          <p>
+            <strong>Structure:</strong>{' '}
+            {parts.map(([label, ok]) => `${label} ${ok ? 'yes' : 'no'}`).join(' · ')}
+          </p>
+          {report.structureNote ? <p>{report.structureNote}</p> : null}
+          <p>
+            <strong>Fillers:</strong> {fillers.length ? fillers.join(', ') : 'None marked'}
+          </p>
+          <p>
+            <strong>Grammar fixes:</strong>{' '}
+            {grammar.length
+              ? grammar.map((item) => `${item.heard} → ${item.better}`).join(' · ')
+              : 'None'}
+          </p>
+          <p>
+            <strong>Stronger words:</strong>{' '}
+            {swaps.length
+              ? swaps.map((item) => `${item.weak} → ${item.stronger}`).join(' · ')
+              : 'None'}
+          </p>
+          {report.rewritten ? (
+            <p>
+              <strong>Rewritten:</strong> {report.rewritten}
+            </p>
+          ) : null}
+          {report.watchTip ? (
+            <p>
+              <strong>Watch next:</strong> {report.watchTip}
+            </p>
+          ) : null}
+          {report.pitch ? (
+            <p>
+              <strong>Pitch:</strong> {report.pitch}
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <p>No detailed report was saved with this email.</p>
+      )}
+      <p>
+        <strong>Transcript:</strong> {transcript || 'No speech captured'}
+      </p>
     </div>
   )
 }
@@ -62,8 +138,8 @@ export function AdminLeadsPage() {
       }
     >
       <p className="yp-admin-meta" style={{ marginBottom: '1rem' }}>
-        Everyone who unlocked a landing free-test report. Their email is saved when they open the
-        full report.
+        Everyone who unlocked a landing free-test report. The email and the full report are saved
+        together: score, level, structure, grammar, vocabulary, transcript, and the rewrite.
       </p>
 
       <form className="yp-admin-filters" onSubmit={onSearch}>

@@ -395,7 +395,7 @@ Topic: ${topic}
 Duration: ${durationSec} seconds
 Learner speech:
 """
-${speech.slice(0, 8000)}
+${speech.slice(0, 3500)}
 """
 
 Produce the free-test report JSON now.`
