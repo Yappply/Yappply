@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema(
       default: 'user',
       index: true,
     },
+    /** Demo login: Introduction is the only lesson. */
+    trial: { type: Boolean, default: false, index: true },
     status: {
       type: String,
       enum: ['active', 'limited', 'suspended', 'banned'],

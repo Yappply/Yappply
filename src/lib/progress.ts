@@ -30,6 +30,13 @@ export interface DashboardData {
     timeZone?: string
     completeMs: number
   }
+  resumable?: {
+    lessonId: string
+    lessonNumber: number
+    lessonTitle: string
+    durationMs: number
+    remainingMs: number
+  } | null
   lessonStats: Array<{
     lessonId: string
     lessonNumber: number
@@ -157,19 +164,28 @@ export function fetchLessonReport(lessonId: string) {
   )
 }
 
+export type ResumeLecture = {
+  durationMs: number
+  turns: number
+  corrections: number
+  practiceSuccesses: number
+  maxStreak: number
+  transcript: Array<{ role: 'user' | 'coach'; text: string }>
+}
+
 export function startPracticeSession(payload: {
   lessonId: string
   lessonNumber: number
   lessonTitle: string
 }) {
-  return api<{ sessionId: string }>('/api/progress/sessions/start', {
+  return api<{ sessionId: string; resume?: ResumeLecture | null }>('/api/progress/sessions/start', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 }
 
 export function savePracticeSession(payload: SessionPayload) {
-  return api<{ sessionId?: string; skipped?: boolean }>('/api/progress/sessions', {
+  return api<{ sessionId?: string; skipped?: boolean; paused?: boolean }>('/api/progress/sessions', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

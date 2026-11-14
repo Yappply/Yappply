@@ -40,7 +40,7 @@ const practiceSessionSchema = new mongoose.Schema(
     lessonTitle: { type: String, required: true },
     status: {
       type: String,
-      enum: ['active', 'completed', 'abandoned'],
+      enum: ['active', 'paused', 'completed', 'abandoned'],
       default: 'active',
       index: true,
     },
@@ -52,6 +52,7 @@ const practiceSessionSchema = new mongoose.Schema(
     practiceSuccesses: { type: Number, default: 0 },
     maxStreak: { type: Number, default: 0 },
     completed: { type: Boolean, default: false },
+    progressCounted: { type: Boolean, default: false },
     endedReason: {
       type: String,
       enum: ['hangup', 'timeup', 'error', 'hung_up', 'time_limit', 'blocked', ''],

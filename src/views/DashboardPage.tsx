@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
+import { isTrialAccount } from '../lib/trial'
 import { fetchDashboard, type DashboardData } from '../lib/progress'
 import { isLessonNumberUnlocked } from '../lib/lessonAccess'
 import { TOPICS } from '../data/topics'
@@ -157,7 +158,8 @@ export function DashboardPage() {
       setGate({ ...copy, unlocksAt: data?.lessonAccess?.unlocksAt || null })
       return
     }
-    if (data?.stats.practicedToday || data?.lessonAccess?.practicedToday) {
+    const resumableHere = data?.resumable?.lessonId === lessonId
+    if ((data?.stats.practicedToday || data?.lessonAccess?.practicedToday) && !resumableHere) {
       const copy = limitModalCopy('sessions_day')
       setGate({ ...copy, unlocksAt: data?.lessonAccess?.unlocksAt || null })
       return
@@ -209,15 +211,20 @@ export function DashboardPage() {
     weekActivity[0],
   )
 
+  const trial = isTrialAccount(user)
+  const catalog = trial ? TOPICS.filter((topic) => topic.number === 1) : TOPICS
+
   const featuredLessons = useMemo(() => {
+    if (trial) return catalog
     const start = nextIndex >= 0 ? nextIndex : 0
     return [0, 1, 2].map((offset) => TOPICS[(start + offset) % TOPICS.length])
-  }, [nextIndex])
+  }, [catalog, nextIndex, trial])
 
   const scheduleLessons = useMemo(() => {
+    if (trial) return catalog
     const start = nextIndex >= 0 ? nextIndex : 0
     return [0, 1, 2, 3].map((offset) => TOPICS[(start + offset) % TOPICS.length])
-  }, [nextIndex])
+  }, [catalog, nextIndex, trial])
 
   const takingLessons = useMemo(() => {
     return (data?.lessonStats || [])
@@ -386,7 +393,7 @@ export function DashboardPage() {
                         className="yp-linkish"
                         onClick={() => openPractice(nextLesson.id, nextLesson.number)}
                       >
-                        Start
+                        {data?.resumable?.lessonId === nextLesson.id ? 'Resume' : 'Start'}
                       </button>
                     </div>
                     <ul className="yp-schedule-list">
@@ -406,7 +413,11 @@ export function DashboardPage() {
                                 <strong>{topic.title}</strong>
                                 <em>
                                   Lesson {topic.number} ·{' '}
-                                  {unlocked ? '30 min call' : 'Unlocks next day'}
+                                  {data?.resumable?.lessonId === topic.id
+                                    ? 'Resume lecture'
+                                    : unlocked
+                                      ? '30 min call'
+                                      : 'Unlocks next day'}
                                 </em>
                               </span>
                               <Chevron />

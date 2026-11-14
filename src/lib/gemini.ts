@@ -32,7 +32,8 @@ CONVERSATION STYLE (critical):
 - Almost never say "Thank you" / "Thanks". Never start with "Very good!" every turn.
 - Appreciate briefly and CHANGE the phrase every turn: "Nice!", "Oh I see.", "That is interesting.", "Lovely.", "Cool.", "I like that.", "Wonderful.", "Okay, got it."
 - Use ONLY simple everyday words. Short sentences (about 5–14 words).
-- One natural follow-up question at the end of a chat turn (unless in practice mode).
+- One natural follow-up question at the end of every chat turn, including right after they repeat a correction correctly.
+- After a correct repeat: praise in one short phrase AND ask the next lesson question in that SAME reply. Never stop after praise alone ("Wonderful." with no question is wrong).
 - When correcting: "Almost. Please say: … Now you try."
 
 30-MINUTE PACING:
@@ -89,7 +90,7 @@ PRACTICE RULES (compulsory for grammar / structure mistakes):
   - accent or pronunciation-only issues
   - inventing jobs/facts they did not say (never "I work as an AI")
 - If audio is extremely unclear nonsense: mode "chat", ask them to say the idea again simply.
-- If close enough to practiceTarget → mode "chat", praise, then a NEW lesson question.
+- If close enough to practiceTarget → mode "chat". Praise once, then ask ONE new lesson question in the SAME reply. The reply must end with "?". Never stop after praise.
 - Max 3 practice tries on the SAME correctedSentence. After 3 failed tries: say the correct sentence once, then CONTINUE the lesson in chat. Never stay stuck on that sentence.
 - If you are unsure but the sentence looks broken or incomplete, choose mode "practice".
 
@@ -837,6 +838,42 @@ function localGrammarFix(userText: string): string | null {
   return out
 }
 
+function replyHasQuestion(reply: string): boolean {
+  return /\?/.test(reply)
+}
+
+function withQuestionMark(text: string): string {
+  const trimmed = text.trim()
+  if (!trimmed) return 'Can you tell me a little more?'
+  return trimmed.endsWith('?') ? trimmed : `${trimmed.replace(/[.!\s]+$/, '')}?`
+}
+
+/** After a correct repeat, pick one unused lesson question so praise is never the whole turn. */
+function questionAfterPractice(topic: Topic, messages: ChatMessage[]): string {
+  if (topic.agenda?.length) {
+    const { focus, remaining } = agendaCoverage(topic, messages)
+    const asked = collectAskedQuestions(messages)
+    if (focus) {
+      const fresh = (focus.explore || []).find((q) => !isQuestionAlreadyAsked(q, asked))
+      if (fresh && !focus.readyToAdvance) return withQuestionMark(fresh)
+      const next = remaining[0]
+      if (focus.readyToAdvance && next?.ask && !isQuestionAlreadyAsked(next.ask, asked)) {
+        return withQuestionMark(next.ask)
+      }
+      if (fresh) return withQuestionMark(fresh)
+      return withQuestionMark(`What else can you tell me about ${focus.label}`)
+    }
+    if (remaining[0]?.ask) return withQuestionMark(remaining[0].ask)
+  }
+  return withQuestionMark(`What else can you tell me about ${topic.title}`)
+}
+
+function praiseThenQuestion(reply: string, question: string): string {
+  if (replyHasQuestion(reply)) return reply.trim()
+  const praise = reply.trim().split(/[.!?]/)[0]?.trim() || 'Nice'
+  return `${praise}. ${withQuestionMark(question)}`
+}
+
 function normalize(
   data: unknown,
   practiceTarget: string | null,
@@ -944,7 +981,7 @@ export async function converseTurn(params: {
       : ''
 
   const practiceNote = practiceTarget
-    ? `PRACTICE MODE ON. practiceTarget="${practiceTarget}". attempts=${practiceAttempts} of 3. Learner must repeat that exact sentence. If close enough OR already correct → mode=chat, praise, then a NEW lesson question. If still wrong and attempts < 3 → mode=practice again with the SAME correctedSentence. If attempts already reached 3 → mode=chat: say the correct sentence once, then CONTINUE the conversation with a new lesson question. Do not stay stuck on this sentence. Never invent jobs like "AI".`
+    ? `PRACTICE MODE ON. practiceTarget="${practiceTarget}". attempts=${practiceAttempts} of 3. Learner must repeat that exact sentence. If close enough OR already correct → mode=chat. Praise in ONE short phrase, then ask ONE new lesson question in the SAME reply. The reply MUST end with "?". Never stop after praise alone. If still wrong and attempts < 3 → mode=practice again with the SAME correctedSentence and no new question. If attempts already reached 3 → mode=chat: say the correct sentence once, then CONTINUE with a new lesson question. Do not stay stuck on this sentence. Never invent jobs like "AI".`
     : `Compulsory: correct REAL grammar and sentence-structure mistakes with mode="practice" and a short correctedSentence keeping THEIR meaning. If the sentence is already right, mode MUST be "chat". If the sentence is broken/incomplete/wrong structure, you MUST use practice — do not skip it. Never invent facts/jobs. If unsure but it looks broken, choose practice.`
 
   const divertNote = practiceTarget ? '' : repetitionHint(messages, userText)
@@ -980,9 +1017,11 @@ export async function converseTurn(params: {
       grammarIssueHint(userText),
       divertNote,
       extra,
-      topic.agenda?.length
-        ? 'Simple English. You MUST practice-correct clear grammar/structure mistakes. If already correct, stay in chat. Then use KNOWN FACTS and ask ONE brand-new follow-up (not in ASKED THIS CALL) unless THIS TURN ACTION says to advance. If they drifted, steer back. No thank you. JSON only.'
-        : 'Simple English. You MUST practice-correct clear grammar/structure mistakes. If already correct, stay in chat and ask ONE brand-new question not in ASKED THIS CALL. If they drifted, steer back. JSON only.',
+      practiceTarget
+        ? 'If their repeat is close enough or already correct: mode=chat, one short praise, then ONE new lesson question in that SAME reply. The reply MUST contain "?". Do not stop after praise. If the repeat is still wrong, mode=practice and do not ask a new question. JSON only.'
+        : topic.agenda?.length
+          ? 'Simple English. You MUST practice-correct clear grammar/structure mistakes. If already correct, stay in chat. Then use KNOWN FACTS and ask ONE brand-new follow-up (not in ASKED THIS CALL) unless THIS TURN ACTION says to advance. If they drifted, steer back. No thank you. JSON only.'
+          : 'Simple English. You MUST practice-correct clear grammar/structure mistakes. If already correct, stay in chat and ask ONE brand-new question not in ASKED THIS CALL. If they drifted, steer back. JSON only.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -1055,6 +1094,34 @@ export async function converseTurn(params: {
           correctedSentence: null,
           hadCorrection: false,
         }
+      }
+    }
+  }
+
+  // A correct repeat must praise AND ask the next question in the same turn.
+  if (practiceTarget && practiceAttempts < 3 && normalized.mode === 'chat' && !replyHasQuestion(normalized.reply)) {
+    try {
+      const retryRaw = await generateViaProxy(
+        buildPrompt(
+          'CRITICAL: they just said the corrected sentence well enough. ' +
+            'Praise in one short new phrase, then ask ONE new lesson question in the SAME reply. ' +
+            'The reply MUST end with a question mark. mode must be "chat". Do not ask them to repeat again.',
+        ),
+        { callType: 'conversation', userText },
+      )
+      const retried = normalize(extractJson(retryRaw), practiceTarget, userText)
+      if (retried.mode === 'chat' && replyHasQuestion(retried.reply)) {
+        normalized = retried
+      }
+    } catch {
+      /* use the local question below */
+    }
+    if (!replyHasQuestion(normalized.reply)) {
+      normalized = {
+        reply: praiseThenQuestion(normalized.reply, questionAfterPractice(topic, messages)),
+        mode: 'chat',
+        correctedSentence: null,
+        hadCorrection: false,
       }
     }
   }

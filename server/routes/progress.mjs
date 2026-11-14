@@ -21,6 +21,7 @@ import {
   evaluateLessonWithGemini,
 } from '../lib/evaluateSession.mjs'
 import { logUsageEvent } from '../lib/logUsageEvent.mjs'
+import { isTrialUser } from '../lib/trialUser.mjs'
 
 const TOTAL_LESSONS = 30
 
@@ -399,9 +400,13 @@ router.get('/summary', requireAuth, async (req, res) => {
     const practicedToday = todaySessionCount > 0 || progress.lastPracticeDate === todayLocal
     const lessonAccess = buildLessonAccess(progress.lessonStats, {
       practicedToday,
-      totalLessons: TOTAL_LESSONS,
+      totalLessons: isTrialUser(req.user) ? 1 : TOTAL_LESSONS,
       timeZone,
     })
+    const resumableSession = await PracticeSession.findOne(resumableQuery(req.user._id))
+      .sort({ updatedAt: -1 })
+      .select('lessonId lessonNumber lessonTitle durationMs')
+      .lean()
 
     res.json({
       user: {
@@ -423,6 +428,15 @@ router.get('/summary', requireAuth, async (req, res) => {
         practicedToday,
       },
       lessonAccess,
+      resumable: resumableSession
+        ? {
+            lessonId: resumableSession.lessonId,
+            lessonNumber: resumableSession.lessonNumber,
+            lessonTitle: resumableSession.lessonTitle,
+            durationMs: resumableSession.durationMs || 0,
+            remainingMs: Math.max(0, LECTURE_MS - (resumableSession.durationMs || 0)),
+          }
+        : null,
       lessonStats: progress.lessonStats.map((l) => {
         const plain = typeof l.toObject === 'function' ? l.toObject() : { ...l }
         return {
@@ -463,6 +477,37 @@ router.get('/summary', requireAuth, async (req, res) => {
   }
 })
 
+const LECTURE_MS = 30 * 60 * 1000
+
+function resumePayload(session) {
+  return {
+    durationMs: session.durationMs || 0,
+    turns: session.turns || 0,
+    corrections: session.corrections || 0,
+    practiceSuccesses: session.practiceSuccesses || 0,
+    maxStreak: session.maxStreak || 0,
+    transcript: (session.transcript || []).map((t) => ({
+      role: t.role === 'user' ? 'user' : 'coach',
+      text: t.text || '',
+    })),
+  }
+}
+
+function resumableQuery(userId, lessonId) {
+  const filter = {
+    userId,
+    isTest: { $ne: true },
+    durationMs: { $lt: LECTURE_MS },
+    endedReason: { $nin: ['timeup', 'time_limit'] },
+  }
+  if (lessonId) filter.lessonId = lessonId
+  return filter
+}
+
+async function findResumableSession(userId, lessonId) {
+  return PracticeSession.findOne(resumableQuery(userId, lessonId)).sort({ updatedAt: -1 })
+}
+
 function mapEndReason(endedReason) {
   if (endedReason === 'timeup' || endedReason === 'time_limit') return 'time_limit'
   if (endedReason === 'error') return 'error'
@@ -481,6 +526,19 @@ router.post('/sessions/start', requireAuth, async (req, res) => {
     }
 
     const timeZone = resolveRequestTimeZone(req, { persist: true })
+    const open = await findResumableSession(req.user._id, lessonId)
+    if (open) {
+      if (open.status === 'completed' || open.endedAt) open.progressCounted = true
+      open.status = 'active'
+      open.completed = false
+      await open.save()
+      res.json({
+        sessionId: open._id.toString(),
+        resume: resumePayload(open),
+      })
+      return
+    }
+
     const denied = await checkPracticeAllowed(req.user, { kind: 'start', timeZone })
     if (denied) {
       res.status(denied.statusCode).json({
@@ -556,6 +614,37 @@ router.post('/sessions', requireAuth, async (req, res) => {
     if (!lessonId || !Number.isFinite(lessonNumber)) {
       res.status(400).json({ error: 'lessonId and lessonNumber are required' })
       return
+    }
+
+    const pausing =
+      endedReason !== 'timeup' && endedReason !== 'time_limit' && durationMs < LECTURE_MS
+
+    if (pausing && existingId && mongoose.isValidObjectId(existingId)) {
+      const paused = await PracticeSession.findOne({ _id: existingId, userId: req.user._id })
+      if (paused && paused.status !== 'completed') {
+        paused.status = 'paused'
+        paused.durationMs = durationMs
+        paused.durationSec = Math.round(durationMs / 1000)
+        paused.turns = turns
+        paused.turnCount = turns
+        paused.corrections = corrections
+        paused.practiceSuccesses = practiceSuccesses
+        paused.maxStreak = maxStreak
+        paused.completed = false
+        paused.endedReason = 'hangup'
+        paused.endReason = 'hung_up'
+        paused.transcript = transcript.map((t, i) => ({
+          role: t.role === 'user' ? 'user' : 'coach',
+          text: String(t.text || '').slice(0, 4000),
+          turnIndex: Number(t.turnIndex) || i,
+          at: t.at ? new Date(t.at) : new Date(),
+          correction: Boolean(t.correction),
+          practiceAttempts: Number(t.practiceAttempts) || 0,
+        }))
+        await paused.save()
+        res.json({ sessionId: paused._id.toString(), paused: true })
+        return
+      }
     }
 
     // Ignore tiny accidental opens with no practice
@@ -634,6 +723,10 @@ router.post('/sessions', requireAuth, async (req, res) => {
       topMistakes,
     }
 
+    const alreadyCounted = Boolean(session?.progressCounted)
+    const previousDuration = session?.durationMs || 0
+    payload.progressCounted = true
+
     if (session) {
       Object.assign(session, payload)
       await session.save()
@@ -646,10 +739,12 @@ router.post('/sessions', requireAuth, async (req, res) => {
     }
 
     const progress = await getOrCreateProgress(req.user._id)
-    progress.totalSessions += 1
-    progress.totalPracticeMs += durationMs
-    progress.totalTurns += turns
-    progress.totalCorrections += corrections
+    if (!alreadyCounted) {
+      progress.totalSessions += 1
+      progress.totalPracticeMs += durationMs
+      progress.totalTurns += turns
+      progress.totalCorrections += corrections
+    }
 
     const timeZone = resolveRequestTimeZone(req, { persist: true })
     const today = zonedDateString(new Date(), timeZone)
@@ -684,10 +779,14 @@ router.post('/sessions', requireAuth, async (req, res) => {
       }
       progress.lessonStats.push(lesson)
     }
-    lesson.attempts += 1
-    lesson.totalDurationMs += durationMs
-    lesson.totalTurns += turns
-    lesson.totalCorrections += corrections
+    if (!alreadyCounted) {
+      lesson.attempts += 1
+      lesson.totalDurationMs += durationMs
+      lesson.totalTurns += turns
+      lesson.totalCorrections += corrections
+    } else {
+      lesson.totalDurationMs += Math.max(0, durationMs - previousDuration)
+    }
     lesson.bestStreak = Math.max(lesson.bestStreak, maxStreak)
     lesson.lastPracticedAt = new Date()
     if (session.completed) {

@@ -6,6 +6,7 @@ import { TOPICS } from '../data/topics'
 import { ChatScreen, type CallSessionStats } from '../components/ChatScreen'
 import { PracticeLimitModal, limitModalCopy } from '../components/PracticeLimitModal'
 import { useAuth } from '../context/AuthContext'
+import { isTrialAccount } from '../lib/trial'
 import { ApiError } from '../lib/api'
 import { savePracticeSession, startPracticeSession } from '../lib/progress'
 import {
@@ -30,13 +31,14 @@ export function PracticePage() {
   useEffect(() => {
     if (!topic) router.replace('/lessons')
     else if (!user) router.replace('/login')
+    else if (isTrialAccount(user) && topic.number !== 1) router.replace('/lessons')
   }, [topic, user, router])
 
   useEffect(() => {
     return () => clearPracticeContext()
   }, [])
 
-  if (!topic || !user) return null
+  if (!topic || !user || (isTrialAccount(user) && topic.number !== 1)) return null
 
   async function handleCallStart() {
     try {
@@ -48,9 +50,9 @@ export function PracticePage() {
       setPracticeContext({
         sessionId: started.sessionId,
         lessonId: topic!.id,
-        turnIndex: 0,
+        turnIndex: started.resume?.transcript?.length || 0,
       })
-      return started.sessionId
+      return started
     } catch (err) {
       const apiErr = err instanceof ApiError ? err : null
       const copy = limitModalCopy(apiErr?.code)
@@ -95,6 +97,11 @@ export function PracticePage() {
         transcript: stats.transcript,
       })
       if (saved.sessionId) sessionId = saved.sessionId
+      if (saved.paused || (stats.endedReason !== 'timeup' && stats.durationMs < 30 * 60 * 1000)) {
+        clearPracticeContext()
+        router.replace('/lessons')
+        return
+      }
     } catch (err) {
       console.warn('Could not save session', err)
     } finally {

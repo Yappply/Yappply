@@ -3,6 +3,7 @@ import {
   normalizeTimeZone,
   zonedDateString,
 } from './timeZones.mjs'
+import { isTrialUser } from './trialUser.mjs'
 
 /** One full 30-minute call completes a lesson (slight buffer for timer drift). */
 export const LESSON_COMPLETE_MS = 28 * 60 * 1000
@@ -97,6 +98,14 @@ export function checkLessonStartAllowed(
   }
 
   const n = Number(lessonNumber)
+  if (isTrialUser(user) && n !== 1) {
+    return {
+      statusCode: 403,
+      error: 'This trial includes the Introduction lesson only.',
+      code: 'trial_lesson',
+    }
+  }
+
   if (!Number.isFinite(n) || n < 1) {
     return { statusCode: 400, error: 'Invalid lesson', code: 'bad_lesson' }
   }

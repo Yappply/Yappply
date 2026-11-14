@@ -8,6 +8,7 @@ import geminiRoutes from './routes/gemini.mjs'
 import adminRoutes from './routes/admin.mjs'
 import freeTestRoutes from './routes/freeTest.mjs'
 import { ensureAdminUser } from './lib/ensureAdmin.mjs'
+import { ensureTrialUser } from './lib/ensureTrial.mjs'
 import { seedModelPricing } from './lib/pricing.mjs'
 import { scanAbuseFlags } from './lib/flagScanner.mjs'
 import { LimitsConfig } from './models/LimitsConfig.mjs'
@@ -98,6 +99,14 @@ async function prepare() {
     }
   } catch (err) {
     console.error('Could not ensure admin user:', err instanceof Error ? err.message : err)
+  }
+
+  try {
+    const trial = await ensureTrialUser()
+    if (trial?.created) console.log(`Trial user created: ${trial.email}`)
+    else if (trial?.email) console.log(`Trial user ready: ${trial.email}`)
+  } catch (err) {
+    console.error('Could not ensure trial user:', err instanceof Error ? err.message : err)
   }
 }
 

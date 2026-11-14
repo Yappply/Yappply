@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChatMessage, Topic } from '../types'
 import { converseTurn, friendlyApiError, warmGemini } from '../lib/gemini'
 import { getPracticeContext } from '../lib/practiceContext'
+import type { ResumeLecture } from '../lib/progress'
 import type { Level } from '../lib/storage'
 import type { RawSessionStats, TrackedMistake } from '../lib/scoring'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
@@ -26,7 +27,9 @@ interface Props {
   level: Level
   topic: Topic
   onBack: () => void
-  onCallStart?: () => Promise<string | void> | string | void
+  onCallStart?: () => Promise<
+    string | { sessionId: string; resume?: ResumeLecture | null } | void
+  > | string | { sessionId: string; resume?: ResumeLecture | null } | void
   onSessionEnd?: (stats: CallSessionStats) => void | Promise<void>
 }
 
@@ -344,40 +347,69 @@ export function ChatScreen({ level, topic, onBack, onCallStart, onSessionEnd }: 
     pausedRef.current = false
     sessionAliveRef.current = true
     endingForTimeRef.current = false
-    remainingRef.current = MAX_CALL_MS
-    deadlineRef.current = Date.now() + MAX_CALL_MS
-    setRemainingMs(MAX_CALL_MS)
     setStarting(true)
     setHint('Yappy is joining…')
     practiceTargetRef.current = null
     practiceAttemptsRef.current = 0
     setInPractice(false)
     setPracticeAttempt(0)
-    setStreak(0)
-    statsRef.current = {
-      turns: 0,
-      corrections: 0,
-      practiceSuccesses: 0,
-      maxStreak: 0,
-      reported: false,
-      confidences: [],
-      mistakes: [],
-      practiceExhausted: 0,
-    }
-    resetMessages(topic.starter)
     sessionIdRef.current = null
 
     try {
+      let resume: ResumeLecture | null = null
       if (onCallStartRef.current) {
-        const sid = await onCallStartRef.current()
-        if (typeof sid === 'string') sessionIdRef.current = sid
+        const started = await onCallStartRef.current()
+        if (typeof started === 'string') sessionIdRef.current = started
+        else if (started && typeof started === 'object') {
+          sessionIdRef.current = started.sessionId
+          resume = started.resume || null
+        }
       }
+
+      const elapsed = Math.min(MAX_CALL_MS, Math.max(0, resume?.durationMs || 0))
+      const remaining = Math.max(0, MAX_CALL_MS - elapsed)
+      remainingRef.current = remaining
+      deadlineRef.current = Date.now() + remaining
+      setRemainingMs(remaining)
+      setStreak(resume?.maxStreak || 0)
+      statsRef.current = {
+        turns: resume?.turns || 0,
+        corrections: resume?.corrections || 0,
+        practiceSuccesses: resume?.practiceSuccesses || 0,
+        maxStreak: resume?.maxStreak || 0,
+        reported: false,
+        confidences: [],
+        mistakes: [],
+        practiceExhausted: 0,
+      }
+
+      const prior = (resume?.transcript || []).filter((turn) => turn.text?.trim())
+      if (prior.length) {
+        const restored: ChatMessage[] = prior.map((turn) => ({
+          id: uid(),
+          role: turn.role === 'user' ? 'user' : 'coach',
+          text: turn.text,
+        }))
+        historyRef.current = restored
+        setMessages(restored)
+      } else {
+        resetMessages(topic.starter)
+      }
+
       await Promise.all([lucy.unlock(), warmGemini()])
       if (!sessionAliveRef.current || pausedRef.current) return
+      if (remaining <= 1000) {
+        setStarting(false)
+        void hangUpForTime()
+        return
+      }
       setStarting(false)
-      await lucySpeak(topic.starter)
+      const greeting = prior.length
+        ? "Welcome back. Let's continue this lesson where we left off."
+        : topic.starter
+      if (prior.length) pushMessage({ id: uid(), role: 'coach', text: greeting })
+      await lucySpeak(greeting)
     } catch (err) {
-      console.error(err)
       setStarting(false)
       callStartedRef.current = false
       if (pausedRef.current) return
@@ -391,7 +423,7 @@ export function ChatScreen({ level, topic, onBack, onCallStart, onSessionEnd }: 
         }
       }, 2500)
     }
-  }, [lucy, lucySpeak, resetMessages, starting, topic.starter])
+  }, [hangUpForTime, lucy, lucySpeak, pushMessage, resetMessages, starting, topic.starter])
 
   const sendUserTurn = useCallback(
     async (transcript: string, confidence?: number) => {
@@ -728,7 +760,7 @@ export function ChatScreen({ level, topic, onBack, onCallStart, onSessionEnd }: 
                       : 'Start call — Yappy speaks first'}
                 </button>
                 <p className="mic-hint">
-                  Up to 30 minutes. You can hang up any time. Volume up — Yappy speaks first.
+                  Up to 30 minutes. Hang up early and you can resume this lecture with the time left.
                 </p>
               </>
             ) : (

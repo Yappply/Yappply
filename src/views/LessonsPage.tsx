@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../context/AuthContext'
+import { isTrialAccount } from '../lib/trial'
 import { TOPICS } from '../data/topics'
 import type { Topic } from '../types'
 import { AppShell } from '../components/AppShell'
@@ -13,6 +15,9 @@ const CARD_TONES = ['lime', 'pink', 'lilac', 'lime', 'pink', 'lilac'] as const
 
 export function LessonsPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const trial = isTrialAccount(user)
+  const topics = trial ? TOPICS.filter((topic) => topic.number === 1) : TOPICS
   const [data, setData] = useState<DashboardData | null>(null)
   const [gate, setGate] = useState<{ title: string; message: string; unlocksAt?: string | null } | null>(
     null,
@@ -45,7 +50,8 @@ export function LessonsPage() {
       })
       return
     }
-    if (data?.stats.practicedToday || data?.lessonAccess?.practicedToday) {
+    const resumableHere = data?.resumable?.lessonId === topic.id
+    if ((data?.stats.practicedToday || data?.lessonAccess?.practicedToday) && !resumableHere) {
       const copy = limitModalCopy('sessions_day')
       setGate({
         ...copy,
@@ -64,7 +70,9 @@ export function LessonsPage() {
             Pick a lesson and start <em className="s">speaking.</em>
           </h1>
           <p>
-            One 30-minute call per day. Finish a lesson, then the next unlocks when the day changes.
+            {trial
+              ? 'Trial access includes the Introduction lesson only.'
+              : 'One 30-minute call per day. Finish a lesson, then the next unlocks when the day changes.'}
           </p>
         </header>
 
@@ -75,12 +83,13 @@ export function LessonsPage() {
         </div>
 
         <div className="yp-topic-grid">
-          {TOPICS.map((topic, index) => {
+          {topics.map((topic, index) => {
             const tone = CARD_TONES[index % CARD_TONES.length]
             const unlocked = isLessonNumberUnlocked(topic.number, data)
             const done = Boolean(
               data?.lessonStats?.find((l) => l.lessonId === topic.id && l.completed),
             )
+            const resumable = data?.resumable?.lessonId === topic.id
             return (
               <button
                 key={topic.id}
@@ -100,9 +109,11 @@ export function LessonsPage() {
                 <span className="yp-topic-go">
                   {!unlocked
                     ? 'Locked · unlocks next day'
-                    : done
-                      ? 'Practice again →'
-                      : 'Start call →'}
+                    : resumable
+                      ? 'Resume call →'
+                      : done
+                        ? 'Practice again →'
+                        : 'Start call →'}
                 </span>
               </button>
             )

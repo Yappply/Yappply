@@ -18,6 +18,7 @@ export interface AuthUser {
   email: string
   level: Level
   role?: 'user' | 'admin'
+  trial?: boolean
   status?: 'active' | 'limited' | 'suspended' | 'banned'
   /** ISO date when the current plan window ends */
   subscriptionEndsAt?: string

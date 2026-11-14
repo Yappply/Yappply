@@ -15,6 +15,7 @@ function publicUser(user) {
     email: user.email,
     level: user.level,
     role: user.role || 'user',
+    trial: Boolean(user.trial),
     status: user.status || 'active',
     subscriptionEndsAt: resolveSubscriptionEndsAt(user).toISOString(),
   }
